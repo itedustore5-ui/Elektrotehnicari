@@ -24,18 +24,15 @@ router.post("/auth/login", async (req, res) => {
       return;
     }
     const [user] = await db.select().from(users).where(eq(users.username, username)).limit(1);
-
     if (!user || !user.active) {
       res.status(401).json({ message: "Погрешно корисничко ime или лозинка." });
       return;
     }
-
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) {
       res.status(401).json({ message: "Погрешно корисничко ime или лозинка." });
       return;
     }
-
     res.json({ token: createToken(user), user: publicUser(user) });
   } catch (err) {
     req.log.error({ err }, "Login error");
@@ -43,22 +40,9 @@ router.post("/auth/login", async (req, res) => {
   }
 });
 
-router.get("/auth/setup", async (req, res) => {
-  const hash = await bcrypt.hash("admin123", 10);
-  await db.insert(users).values({
-    username: "admin",
-    passwordHash: hash,
-    passwordPlain: "admin123",
-    fullName: "Administrator",
-    role: "admin",
-    active: true,
-    neverExpires: true,
-    quizOnce: false,
-  }).onConflictDoUpdate({
-    target: users.username,
-    set: { passwordHash: hash, active: true }
-  });
-  res.json({ ok: true });
+router.get("/auth/me", requireAuth, (req, res) => {
+  const user = (req as AuthedRequest).user;
+  res.json(publicUser(user));
 });
 
 export default router;
