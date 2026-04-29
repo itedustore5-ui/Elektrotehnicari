@@ -1,15 +1,17 @@
-import bcrypt from "bcryptjs";
-import { db, users } from "@workspace/db";
-import { eq } from "drizzle-orm";
-
 async function seed() {
+  const hash = await bcrypt.hash("admin123", 10);
+  
   const existing = await db.select().from(users).where(eq(users.username, "admin")).limit(1);
+  
   if (existing.length > 0) {
-    console.log("Seed: admin korisnik već postoji, preskačem.");
+    // Forsiraj reset lozinke
+    await db.update(users)
+      .set({ passwordHash: hash, passwordPlain: "admin123" })
+      .where(eq(users.username, "admin"));
+    console.log("Seed: admin lozinka resetovana");
     return;
   }
 
-  const hash = await bcrypt.hash("admin123", 10);
   await db.insert(users).values({
     username: "admin",
     passwordHash: hash,
@@ -20,13 +22,5 @@ async function seed() {
     neverExpires: true,
     quizOnce: false,
   });
-
   console.log("Seed: admin korisnik kreiran (admin / admin123)");
 }
-
-seed()
-  .then(() => process.exit(0))
-  .catch((err) => {
-    console.error("Seed greška:", err);
-    process.exit(1);
-  });
