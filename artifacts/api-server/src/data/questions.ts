@@ -1163,7 +1163,7 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 103, type: "single", subject: "os", points: 2,
-    imageQuestion: true,
+    imageQuestion: "/images/103.jpg",
     question: "Конфигуришете рачунар [слика подешавања мрежне картице]. Потребно је да рачунар комуницира само у локалној мрежи. Ви ћете:",
     options: [
       "избрисати подешавања за мрежни пролаз",
