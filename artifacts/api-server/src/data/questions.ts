@@ -562,18 +562,17 @@ export const questions: QuizQuestion[] = [
     explanation: "Win+M минимизује све, Alt+Tab мења апликацију, Alt+PrtSc копира активни прозор, Ctrl+X сече, Win+E отвара Explorer, Shift+Alt мења језик.",
   },
   {
-    id: 47, type: "match", subject: "hardware", points: 3,
+    id: 47, type: "order", subject: "hardware", points: 3,
     imageQuestion: "/images/47.jpg",
     question: "На слици је блок шема савременог рачунарског система. Бројевима су означени непознати елементи. На линији испред описа/имена елемента уписати број позиције (X ако се не појављује).",
-    leftItems: ["(елементи на блок шеми)"],
-    rightItems: [
+    items: [
       "Матична плоча",
       "Обавља операције користећи инструкције",
       "Оперативна (радна) меморија",
       "Северни мост",
       "Јужни мост",
     ],
-    correctPairs: [-1,-1,-1,-1,-1],
+    correctPairs: [X,3,4,1,2],
     explanation: "Одговор зависи од конкретне блок шеме у задатку.",
   },
   {
@@ -587,7 +586,7 @@ export const questions: QuizQuestion[] = [
       "Екстерни хард диск",
       "Спољашњи L2 кеш на процесору",
     ],
-    correctOrder: [3, 1, 5, 0, 2, 4],
+    correctOrder: [4, 2, 5, 1, 6, 3],
     explanation: "По брзини (опадајуће): Регистри > L1 кеш > L2 кеш > Оперативна меморија > Хард диск > Екстерни хард диск.",
   },
   {
