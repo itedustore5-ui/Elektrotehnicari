@@ -515,15 +515,29 @@ function MatchUI({ question, locked, onCommit }: {
     return Object.fromEntries(locked.split(",").map((v, i) => [i, Number(v)]));
   }, [locked, pairs]);
 
-  const clickLeft = (li: number) => {
-    if (locked !== undefined) return;
-    setSelectedLeft((prev) => (prev === li ? null : li));
-  };
-
-  const clickRight = (ri: number) => {
-    if (locked !== undefined || selectedLeft === null) return;
-    setPairs((prev) => ({ ...prev, [selectedLeft]: ri }));
+ const clickLeft = (li: number) => {
+  if (locked !== undefined) return;
+  if (selectedLeft === li) {
     setSelectedLeft(null);
+  } else if (pairs[li] !== undefined && selectedLeft === null) {
+    setPairs((prev) => { const next = { ...prev }; delete next[li]; return next; });
+    setSelectedLeft(li);
+  } else {
+    setSelectedLeft(li);
+  }
+};
+
+const clickRight = (ri: number) => {
+  if (locked !== undefined || selectedLeft === null) return;
+  setPairs((prev) => {
+    const next = { ...prev };
+    for (const key of Object.keys(next)) {
+      if (next[Number(key)] === ri) delete next[Number(key)];
+    }
+    next[selectedLeft] = ri;
+    return next;
+  });
+  setSelectedLeft(null);
   };
 
   const commit = () => {
