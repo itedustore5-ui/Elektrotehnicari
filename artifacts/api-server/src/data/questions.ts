@@ -521,8 +521,8 @@ export const questions: QuizQuestion[] = [
       "6. плава",
     ],
     rightItems: ["+ 12 V", "+5V", "+ 3.3 V", "GND", "PC_ON", "-12 V"],
-    correctPairs: [3,0,1,2,4,5],
-    explanation: "ATX стандард: жута=+12V, црвена=+5V, наранџаста=+3,3V, црна=GND, зелена=PS_ON, плава=-12V.",
+    correctPairs: [1,2,3,0,4,5],
+    explanation: "жута=+12V, црвена=+5V, наранџаста=+3,3V, црна=GND, зелена=PS_ON, плава=-12V.",
   },
   {
     id: 45, type: "match", subject: "hardware", points: 3,
