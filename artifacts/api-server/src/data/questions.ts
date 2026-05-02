@@ -572,7 +572,7 @@ export const questions: QuizQuestion[] = [
       "Северни мост",
       "Јужни мост",
     ],
-    correctPairs: [X,3,4,1,2],
+    correctPairs: [0,3,4,1,2],
     explanation: "Одговор зависи од конкретне блок шеме у задатку.",
   },
   {
