@@ -19,7 +19,7 @@ type AdminUser = AuthUser & { password: string; createdAt: string };
 
 type Question = {
   id: number;
-  type: "single" | "multi" | "fill" | "match" | "order";
+  type: "single" | "multi" | "fill" | "match" | "order" | "slot";
   question: string;
   explanation: string;
   imageQuestion: string | null;
@@ -34,6 +34,10 @@ type Question = {
   items?: string[];
   correctOrder?: number[];
   hasSkips?: boolean;
+  // slot
+  slots?: string[];
+  slotOptions?: number[];
+  correctSlotAnswers?: number[][];
 };
 
 type SubjectScore = {
@@ -142,6 +146,12 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
     if (question.type === "order") {
       const pos = answer.split(",").map(Number);
       return pos.every((v, i) => v === (question.correctOrder ?? [])[i]);
+    }
+    if (question.type === "slot") {
+      const vals = answer.split(",").map(Number);
+      return (question.correctSlotAnswers ?? []).some(
+        (ca) => ca.every((v, i) => v === vals[i])
+      );
     }
   } catch { return false; }
   return false;
@@ -647,6 +657,82 @@ function OrderUI({ question, locked, onCommit }: {
   );
 }
 
+function SlotUI({ question, locked, onCommit }: {
+  question: Question;
+  locked: string | undefined;
+  onCommit: (answer: string) => void;
+}) {
+  const slots = question.slots ?? [];
+  const options = question.slotOptions ?? [];
+  const [selections, setSelections] = useState<Record<number, number>>({});
+  useEffect(() => { setSelections({}); }, [question.id]);
+
+  const lockedSelections: Record<number, number> = useMemo(() => {
+    if (!locked) return selections;
+    return Object.fromEntries(locked.split(",").map((v, i) => [i, Number(v)]));
+  }, [locked, selections]);
+
+  const allFilled = slots.every((_, i) => selections[i] !== undefined);
+
+  const commit = () => {
+    const answer = slots.map((_, i) => selections[i]).join(",");
+    onCommit(answer);
+  };
+
+  return (
+    <div className="mt-4 grid gap-2 md:gap-3">
+      <p className="text-sm text-blue-200 -mb-1">Изаберите редни број модула за сваки слот:</p>
+      {slots.map((slot, i) => {
+        const val = locked !== undefined ? lockedSelections[i] : selections[i];
+        const correctAns = question.correctSlotAnswers ?? [];
+        const isCorrect = locked !== undefined && correctAns.some((ca) => ca[i] === val);
+        const isWrong = locked !== undefined && !isCorrect;
+        return (
+          <div
+            key={i}
+            className={`flex items-center gap-3 rounded-2xl border p-2 md:p-3 ${
+              isCorrect
+                ? "border-emerald-400/40 bg-emerald-500/15"
+                : isWrong
+                ? "border-red-400/40 bg-red-500/15"
+                : "border-white/10 bg-white/5"
+            }`}
+          >
+            <span className="w-20 shrink-0 text-xs md:text-sm font-bold text-blue-200">{slot}</span>
+            <select
+              className="rounded-xl border border-white/20 bg-slate-800 px-2 py-1.5 text-white text-sm"
+              value={val ?? ""}
+              disabled={locked !== undefined}
+              onChange={(e) =>
+                setSelections((prev) => ({ ...prev, [i]: Number(e.target.value) }))
+              }
+            >
+              <option value="">—</option>
+              {options.map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+            {isWrong && (
+              <span className="text-xs text-red-300">
+                тачно: {correctAns[0]?.[i]}
+              </span>
+            )}
+          </div>
+        );
+      })}
+      {locked === undefined && (
+        <button
+          className="primary mt-2 w-full md:w-auto"
+          disabled={!allFilled}
+          onClick={commit}
+        >
+          Потврди одговор
+        </button>
+      )}
+    </div>
+  );
+}
+
 function QuizPage() {
   const [, navigate] = useLocation();
   const search = useSearch();
@@ -775,7 +861,8 @@ function QuizPage() {
             {question.type === "single" ? "Један одговор" :
               question.type === "multi" ? "Вишеструки одговори" :
               question.type === "fill" ? "Попунити" :
-              question.type === "match" ? "Повезивање" : "Редослед"}
+              question.type === "match" ? "Повезивање" :
+              question.type === "slot" ? "Слотови" : "Редослед"}
           </span>
         </div>
 
@@ -804,6 +891,9 @@ function QuizPage() {
         )}
         {question.type === "order" && (
           <OrderUI question={question} locked={locked} onCommit={commit} />
+        )}
+        {question.type === "slot" && (
+          <SlotUI question={question} locked={locked} onCommit={commit} />
         )}
 
         {locked !== undefined && question.type !== "fill" && question.type !== "match" && (
