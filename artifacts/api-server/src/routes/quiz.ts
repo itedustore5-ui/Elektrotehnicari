@@ -9,8 +9,8 @@ const router: IRouter = Router();
 const percent = (score: number, total: number) => Math.round((score / Math.max(total, 1)) * 100);
 
 const SUBJECTS = [
-  { key: "rh",  label: "Рачунарски хардвер",             min: 1,   max: 50  },
-  { key: "os",  label: "Оперативни системи",              min: 51,  max: 151 },
+  { key: "rh",  label: "Рачунарски хардвер",             min: 1,   max: 51  },
+  { key: "os",  label: "Оперативни системи",              min: 52,  max: 151 },
   { key: "ors", label: "Одржавање рачунарских система",   min: 152, max: 200 },
   { key: "td",  label: "Техничка документација",          min: 201, max: 250 },
 ];
