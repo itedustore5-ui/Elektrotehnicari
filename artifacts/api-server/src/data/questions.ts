@@ -194,7 +194,7 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 18, type: "single", subject: "hardware", points: 1,
-    imageQuestion: true,
+    imageQuestion: "/images/18.jpg",
     question: "Покренут програм Speccy после скенирања рачунара показао је [слику]. Овај рачунар има два диска:",
     options: [
       "SSD капацитета 1101GB и HDD капацитета 1TB",
