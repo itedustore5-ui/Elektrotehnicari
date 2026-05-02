@@ -26,7 +26,13 @@ export type OrderQ = {
   hasSkips?: boolean;
   explanation: string; imageQuestion?: boolean;
 };
-export type QuizQuestion = SingleQ | MultiQ | FillQ | MatchQ | OrderQ;
+export type SlotQ = {
+  id: number; type: "slot"; subject: string; points: number;
+  question: string; slots: string[]; options: number[];
+  correctAnswers: number[][];
+  explanation: string; imageQuestion?: boolean;
+};
+export type QuizQuestion = SingleQ | MultiQ | FillQ | MatchQ | OrderQ| SlotQ;
 
 export const questions: QuizQuestion[] = [
 
