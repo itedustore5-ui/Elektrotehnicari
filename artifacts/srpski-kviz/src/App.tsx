@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Route, Router as WouterRouter, Switch, useLocation, useSearch } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -426,17 +426,19 @@ function SingleUI({ question, shuffleMap, locked, onCommit }: {
   );
 }
 
-function MultiUI({ question, shuffleMap, locked, onCommit }: {
+function MultiUI({ question, shuffleMap, locked, onCommit, onRegisterConfirm }: {
   question: Question;
   shuffleMap: Record<number, number[]>;
   locked: string | undefined;
   onCommit: (answer: string) => void;
+  onRegisterConfirm?: (fn: () => void) => void;
 }) {
   const sm = shuffleMap[question.id] ?? (question.options ?? []).map((_, i) => i);
   const displayOptions = sm.map((origIdx) => (question.options ?? [])[origIdx]);
   const [sel, setSel] = useState<Set<number>>(new Set());
 
   useEffect(() => { setSel(new Set()); }, [question.id]);
+  useEffect(() => { onRegisterConfirm?.(commit); }, [sel, question.id]);
 
   const toggle = (si: number) => {
     if (locked !== undefined) return;
@@ -479,15 +481,16 @@ function MultiUI({ question, shuffleMap, locked, onCommit }: {
   );
 }
 
-function FillUI({ question, locked, onCommit }: {
+function FillUI({ question, locked, onCommit, onRegisterConfirm }: {
   question: Question;
   locked: string | undefined;
   onCommit: (answer: string) => void;
+  onRegisterConfirm?: (fn: () => void) => void;
 }) {
   const [text, setText] = useState("");
   useEffect(() => { setText(""); }, [question.id]);
-
   const commit = () => { if (text.trim()) onCommit(text.trim()); };
+  useEffect(() => { onRegisterConfirm?.(commit); }, [text, question.id]);
 
   return (
     <div className="mt-4">
@@ -512,16 +515,18 @@ function FillUI({ question, locked, onCommit }: {
   );
 }
 
-function MatchUI({ question, locked, onCommit }: {
+function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
   question: Question;
   locked: string | undefined;
   onCommit: (answer: string) => void;
+  onRegisterConfirm?: (fn: () => void) => void;
 }) {
   const left = question.leftItems ?? [];
   const right = question.rightItems ?? [];
   const [pairs, setPairs] = useState<Record<number, number>>({});
   const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
   useEffect(() => { setPairs({}); setSelectedLeft(null); }, [question.id]);
+  useEffect(() => { onRegisterConfirm?.(commit); }, [pairs, question.id]);
 
   const lockedPairs: Record<number, number> = useMemo(() => {
     if (!locked) return pairs;
@@ -622,16 +627,18 @@ function MatchUI({ question, locked, onCommit }: {
   );
 }
 
-function OrderUI({ question, locked, onCommit }: {
+function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
   question: Question;
   locked: string | undefined;
   onCommit: (answer: string) => void;
+  onRegisterConfirm?: (fn: () => void) => void;
 }) {
   const items = question.items ?? [];
   const hasSkips = question.hasSkips ?? false;
   const maxPos = hasSkips ? items.filter((_, i) => (question.correctOrder ?? [])[i] > 0).length : items.length;
   const [positions, setPositions] = useState<Record<number, number>>({});
   useEffect(() => { setPositions({}); }, [question.id]);
+  useEffect(() => { onRegisterConfirm?.(commit); }, [positions, question.id]);
 
   const lockedPositions: Record<number, number> = useMemo(() => {
     if (!locked) return positions;
@@ -684,10 +691,11 @@ function OrderUI({ question, locked, onCommit }: {
   );
 }
 
-function SlotUI({ question, locked, onCommit }: {
+function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
   question: Question;
   locked: string | undefined;
   onCommit: (answer: string) => void;
+  onRegisterConfirm?: (fn: () => void) => void;
 }) {
   const slots = question.slots ?? [];
   const options = question.slotOptions ?? [];
@@ -696,6 +704,9 @@ function SlotUI({ question, locked, onCommit }: {
   const [selections, setSelections] = useState<Record<number, number>>({});
   const [multiSelections, setMultiSelections] = useState<Record<number, Set<number>>>({});
   useEffect(() => { setSelections({}); setMultiSelections({}); }, [question.id]);
+  useEffect(() => {
+    onRegisterConfirm?.(isMulti ? commitMulti : commitDropdown);
+  }, [selections, multiSelections, question.id, isMulti]);
 
   const lockedSelections: Record<number, number> = useMemo(() => {
     if (!locked || isMulti) return selections;
@@ -819,6 +830,7 @@ function QuizPage() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [result, setResult] = useState<{ percentage: number; passed: boolean; score: number; total: number } | null>(null);
   const [error, setError] = useState("");
+  const confirmRef = useRef<(() => void) | null>(null);
 
   const answeredCount = Object.keys(answers).length;
   const question = questions[current];
@@ -902,26 +914,33 @@ function QuizPage() {
   const progress = Math.round((answeredCount / Math.max(questions.length, 1)) * 100);
 
   return (
-    // Extra bottom padding so fixed nav bar doesn't cover content
-    <section className="mx-auto max-w-5xl pb-32">
-      {/* Top bar: question counter + buttons */}
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <p className="text-xs md:text-sm text-blue-200">
-          Питање {current + 1} од {questions.length}
-          {subjectLabel && <span className="ml-2 text-blue-300">— {subjectLabel}</span>}
+    <section className="mx-auto max-w-5xl pb-28">
+      {/* Top bar: compact single line */}
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <p className="text-xs text-blue-300 leading-tight">
+          <span className="font-bold text-white">Питање {current + 1}/{questions.length}</span>
+          {subjectLabel && <span className="ml-1.5 text-blue-400">— {subjectLabel}</span>}
         </p>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           {subjectKey && (
-            <button className="secondary text-sm py-1 px-2" onClick={() => navigate("/dashboard")}>
-              ← Dashboard
+            <button
+              className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-bold text-blue-200 hover:bg-white/10 transition"
+              onClick={() => navigate("/dashboard")}
+            >
+              Dashboard
             </button>
           )}
-          <button className="secondary text-sm py-1.5 px-3" onClick={restart}>Из почетка</button>
+          <button
+            className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-bold text-blue-200 hover:bg-white/10 transition"
+            onClick={restart}
+          >
+            Из почетка
+          </button>
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div className="mb-4 h-2 md:h-3 overflow-hidden rounded-full bg-white/15">
+      {/* Progress bar — slim */}
+      <div className="mb-3 h-1 overflow-hidden rounded-full bg-white/15">
         <div
           className="h-full rounded-full bg-gradient-to-r from-sky-300 to-emerald-300 transition-all"
           style={{ width: `${progress}%` }}
@@ -965,19 +984,19 @@ function QuizPage() {
           <SingleUI question={question} shuffleMap={shuffleMap} locked={locked} onCommit={commit} />
         )}
         {question.type === "multi" && (
-          <MultiUI question={question} shuffleMap={shuffleMap} locked={locked} onCommit={commit} />
+          <MultiUI question={question} shuffleMap={shuffleMap} locked={locked} onCommit={commit} onRegisterConfirm={(fn) => { confirmRef.current = fn; }} />
         )}
         {question.type === "fill" && (
-          <FillUI question={question} locked={locked} onCommit={commit} />
+          <FillUI question={question} locked={locked} onCommit={commit} onRegisterConfirm={(fn) => { confirmRef.current = fn; }} />
         )}
         {question.type === "match" && (
-          <MatchUI question={question} locked={locked} onCommit={commit} />
+          <MatchUI question={question} locked={locked} onCommit={commit} onRegisterConfirm={(fn) => { confirmRef.current = fn; }} />
         )}
         {question.type === "order" && (
-          <OrderUI question={question} locked={locked} onCommit={commit} />
+          <OrderUI question={question} locked={locked} onCommit={commit} onRegisterConfirm={(fn) => { confirmRef.current = fn; }} />
         )}
         {question.type === "slot" && (
-          <SlotUI question={question} locked={locked} onCommit={commit} />
+          <SlotUI question={question} locked={locked} onCommit={commit} onRegisterConfirm={(fn) => { confirmRef.current = fn; }} />
         )}
 
         {/* Explanation after answer */}
@@ -999,12 +1018,53 @@ function QuizPage() {
       {/* Error */}
       {error && <p className="mt-4 rounded-2xl bg-red-500/20 p-4 text-red-100 text-sm">{error}</p>}
 
-      {/* ── Fixed bottom navigation bar (works on BOTH mobile and desktop) ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-slate-950/80 backdrop-blur-xl px-3 py-3 md:px-6">
-        <div className="mx-auto max-w-5xl flex flex-col gap-2">
+      {/* ── Fixed bottom navigation bar ── */}
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-slate-950/85 backdrop-blur-xl px-3 py-2 md:px-6">
+        <div className="mx-auto max-w-5xl flex flex-col gap-1.5">
 
-          {/* Progress dots */}
-          <div className="flex flex-wrap justify-center gap-1">
+          {/* Назад / Потврди / Напред — sve tri u jednom redu */}
+          <div className="flex items-center gap-2">
+            <button
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-blue-200 hover:bg-white/10 transition disabled:opacity-30"
+              disabled={current === 0}
+              onClick={() => setCurrent((v) => Math.max(0, v - 1))}
+            >
+              ← Назад
+            </button>
+
+            {/* Potvrdi — prikazuje se samo kad pitanje NIJE odgovoreno */}
+            {locked === undefined ? (
+              <button
+                className="flex-1 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 py-2 text-xs font-black text-white shadow-lg shadow-indigo-900/40 transition hover:brightness-110 active:scale-95"
+                onClick={() => confirmRef.current?.()}
+              >
+                Потврди одговор
+              </button>
+            ) : (
+              <span className="flex-1 text-center text-xs text-blue-300 font-bold">
+                {answeredCount}/{questions.length} одговорено
+              </span>
+            )}
+
+            {current < questions.length - 1 ? (
+              <button
+                className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-blue-200 hover:bg-white/10 transition"
+                onClick={() => setCurrent((v) => Math.min(questions.length - 1, v + 1))}
+              >
+                Напред →
+              </button>
+            ) : (
+              <button
+                className="rounded-xl bg-emerald-500/80 border border-emerald-400/30 px-3 py-2 text-xs font-black text-white hover:bg-emerald-500 transition"
+                onClick={submit}
+              >
+                Заврши
+              </button>
+            )}
+          </div>
+
+          {/* Progress dots — very thin row */}
+          <div className="flex flex-wrap justify-center gap-0.5">
             {questions.map((item, index) => {
               const ans = answers[item.id];
               const state =
@@ -1018,44 +1078,14 @@ function QuizPage() {
                   key={item.id}
                   title={`Питање ${index + 1}`}
                   onClick={() => setCurrent(index)}
-                  className={`h-2 w-2 rounded-full transition-all ${state} ${
-                    index === current ? "ring-2 ring-white ring-offset-1 ring-offset-transparent scale-125" : ""
+                  className={`h-1 rounded-full transition-all ${state} ${
+                    index === current ? "w-4 brightness-150" : "w-1.5"
                   }`}
                 />
               );
             })}
           </div>
 
-          {/* Назад / Напред / Заврши */}
-          <div className="flex items-center justify-between gap-3">
-            <button
-              className="secondary py-2.5 px-5 text-sm font-bold flex-1 md:flex-none"
-              disabled={current === 0}
-              onClick={() => setCurrent((v) => Math.max(0, v - 1))}
-            >
-              ← Назад
-            </button>
-
-            <span className="text-xs text-blue-300 font-bold hidden sm:block">
-              {answeredCount}/{questions.length} одговорено
-            </span>
-
-            {current < questions.length - 1 ? (
-              <button
-                className="primary py-2.5 px-5 text-sm font-bold flex-1 md:flex-none"
-                onClick={() => setCurrent((v) => Math.min(questions.length - 1, v + 1))}
-              >
-                Напред →
-              </button>
-            ) : (
-              <button
-                className="primary py-2.5 px-5 text-sm font-bold flex-1 md:flex-none"
-                onClick={submit}
-              >
-                Заврши ({answeredCount}/{questions.length})
-              </button>
-            )}
-          </div>
         </div>
       </div>
     </section>
