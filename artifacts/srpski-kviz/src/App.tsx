@@ -872,8 +872,7 @@ function QuizPage() {
         <p className="text-blue-200">{subjectLabel ? `Квиз — ${subjectLabel}` : "Квиз је завршен"}</p>
         <h2 className="mt-2 text-5xl md:text-6xl font-black">{result.percentage}%</h2>
         <p className={`mt-4 text-xl md:text-2xl font-black ${result.passed ? "text-emerald-200" : "text-red-200"}`}>
-          {result.passed ? "Положио/ла" : "Пао/ла"}
-        </p>
+      </p>
         <p className="mt-2 text-blue-100 text-sm md:text-base">Тачно {result.score} од {result.total} питања.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <button className="secondary" onClick={() => navigate("/dashboard")}>Dashboard</button>
