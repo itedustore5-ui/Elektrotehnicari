@@ -474,9 +474,7 @@ function MultiUI({ question, shuffleMap, locked, onCommit, onRegisterConfirm }: 
           </button>
         );
       })}
-      {locked === undefined && (
-        <button className="primary mt-2 w-full" disabled={sel.size === 0} onClick={commit}>Потврди одговор</button>
-      )}
+      {/* Potvrdi is in the bottom bar — no duplicate here */}
     </div>
   );
 }
@@ -503,9 +501,6 @@ function FillUI({ question, locked, onCommit, onRegisterConfirm }: {
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => { if (e.key === "Enter") commit(); }}
       />
-      {locked === undefined && (
-        <button className="primary mt-3 w-full" disabled={text.trim().length === 0} onClick={commit}>Потврди одговор</button>
-      )}
       {locked !== undefined && (
         <p className={`mt-3 font-black text-sm md:text-base ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
           {isAnswerCorrect(question, locked) ? "Тачно" : `Нетачно — тачан одговор: ${question.correctText}`}
@@ -620,9 +615,7 @@ function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
           )}
         </div>
       </div>
-      {locked === undefined && (
-        <button className="primary mt-4 w-full" disabled={!allPaired} onClick={commit}>Потврди одговор</button>
-      )}
+      {/* Potvrdi is in the bottom bar */}
     </div>
   );
 }
@@ -684,9 +677,7 @@ function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
           </div>
         );
       })}
-      {locked === undefined && (
-        <button className="primary mt-2 w-full" disabled={!allFilled} onClick={commit}>Потврди одговор</button>
-      )}
+      {/* Potvrdi is in the bottom bar */}
     </div>
   );
 }
@@ -774,11 +765,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
             </div>
           );
         })}
-        {locked === undefined && (
-          <button className="primary mt-2 w-full" disabled={!multiAllFilled} onClick={commitMulti}>
-            Потврди одговор
-          </button>
-        )}
+        {/* Potvrdi is in the bottom bar */}
       </div>
     );
   }
@@ -808,11 +795,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
           </div>
         );
       })}
-      {locked === undefined && (
-        <button className="primary mt-2 w-full" disabled={!dropdownAllFilled} onClick={commitDropdown}>
-          Потврди одговор
-        </button>
-      )}
+      {/* Potvrdi is in the bottom bar */}
     </div>
   );
 }
@@ -914,29 +897,29 @@ function QuizPage() {
   const progress = Math.round((answeredCount / Math.max(questions.length, 1)) * 100);
 
   return (
-    <section className="mx-auto max-w-5xl pb-28">
-      {/* Top bar: compact single line */}
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <p className="text-xs text-blue-300 leading-tight">
-          <span className="font-bold text-white">Питање {current + 1}/{questions.length}</span>
-          {subjectLabel && <span className="ml-1.5 text-blue-400">— {subjectLabel}</span>}
-        </p>
-        <div className="flex gap-1.5">
-          {subjectKey && (
-            <button
-              className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-bold text-blue-200 hover:bg-white/10 transition"
-              onClick={() => navigate("/dashboard")}
-            >
-              Dashboard
-            </button>
-          )}
+    <section className="mx-auto max-w-5xl pb-24">
+      {/* Row 1: question info */}
+      <p className="mb-1 text-xs text-blue-300 leading-tight">
+        <span className="font-bold text-white">Питање {current + 1}/{questions.length}</span>
+        {subjectLabel && <span className="ml-1.5 text-blue-400">— {subjectLabel}</span>}
+      </p>
+
+      {/* Row 2: action buttons */}
+      <div className="mb-2 flex gap-1.5">
+        {subjectKey && (
           <button
             className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-bold text-blue-200 hover:bg-white/10 transition"
-            onClick={restart}
+            onClick={() => navigate("/dashboard")}
           >
-            Из почетка
+            Dashboard
           </button>
-        </div>
+        )}
+        <button
+          className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-bold text-blue-200 hover:bg-white/10 transition"
+          onClick={restart}
+        >
+          Из почетка
+        </button>
       </div>
 
       {/* Progress bar — slim */}
@@ -1019,43 +1002,45 @@ function QuizPage() {
       {error && <p className="mt-4 rounded-2xl bg-red-500/20 p-4 text-red-100 text-sm">{error}</p>}
 
       {/* ── Fixed bottom navigation bar ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-slate-950/85 backdrop-blur-xl px-3 py-2 md:px-6">
-        <div className="mx-auto max-w-5xl flex flex-col gap-1.5">
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-slate-950/85 backdrop-blur-xl px-3 py-1.5 md:px-6">
+        <div className="mx-auto max-w-5xl flex flex-col gap-1">
 
-          {/* Назад / Потврди / Напред — sve tri u jednom redu */}
+          {/* Назад / Потврди / Напред */}
           <div className="flex items-center gap-2">
             <button
-              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-blue-200 hover:bg-white/10 transition disabled:opacity-30"
+              className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-bold text-blue-200 hover:bg-white/10 transition disabled:opacity-30"
               disabled={current === 0}
               onClick={() => setCurrent((v) => Math.max(0, v - 1))}
             >
               ← Назад
             </button>
 
-            {/* Potvrdi — prikazuje se samo kad pitanje NIJE odgovoreno */}
-            {locked === undefined ? (
-              <button
-                className="flex-1 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 py-2 text-xs font-black text-white shadow-lg shadow-indigo-900/40 transition hover:brightness-110 active:scale-95"
-                onClick={() => confirmRef.current?.()}
-              >
-                Потврди одговор
-              </button>
-            ) : (
-              <span className="flex-1 text-center text-xs text-blue-300 font-bold">
-                {answeredCount}/{questions.length} одговорено
-              </span>
-            )}
+            {/* Потврди — uvek vidljiv, disabled kad već odgovoreno */}
+            <button
+              className="flex-1 rounded-lg py-1.5 text-xs font-black transition active:scale-95 disabled:opacity-40"
+              style={{
+                background: locked !== undefined
+                  ? "rgba(255,255,255,0.07)"
+                  : "linear-gradient(90deg,#0ea5e9,#6366f1)",
+                color: locked !== undefined ? "rgba(147,197,253,0.7)" : "white",
+                cursor: locked !== undefined ? "default" : "pointer",
+              }}
+              disabled={locked !== undefined}
+              onClick={() => confirmRef.current?.()}
+            >
+              {locked !== undefined ? `✓ ${answeredCount}/${questions.length} одговорено` : "Потврди одговор"}
+            </button>
 
             {current < questions.length - 1 ? (
               <button
-                className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-blue-200 hover:bg-white/10 transition"
+                className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-bold text-blue-200 hover:bg-white/10 transition"
                 onClick={() => setCurrent((v) => Math.min(questions.length - 1, v + 1))}
               >
                 Напред →
               </button>
             ) : (
               <button
-                className="rounded-xl bg-emerald-500/80 border border-emerald-400/30 px-3 py-2 text-xs font-black text-white hover:bg-emerald-500 transition"
+                className="rounded-lg bg-emerald-500/80 border border-emerald-400/30 px-3 py-1.5 text-xs font-black text-white hover:bg-emerald-500 transition"
                 onClick={submit}
               >
                 Заврши
@@ -1063,16 +1048,14 @@ function QuizPage() {
             )}
           </div>
 
-          {/* Progress dots — very thin row */}
+          {/* Progress dots */}
           <div className="flex flex-wrap justify-center gap-0.5">
             {questions.map((item, index) => {
               const ans = answers[item.id];
               const state =
-                ans === undefined
-                  ? "bg-white/20"
-                  : isAnswerCorrect(item, ans)
-                  ? "bg-emerald-400"
-                  : "bg-red-400";
+                ans === undefined ? "bg-white/20"
+                : isAnswerCorrect(item, ans) ? "bg-emerald-400"
+                : "bg-red-400";
               return (
                 <button
                   key={item.id}
