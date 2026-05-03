@@ -1279,12 +1279,12 @@ export const questions: QuizQuestion[] = [
     id: 112, type: "multi", subject: "os", points: 2,
     question: "Као антивирус програми могу да се користе:",
     options: ["KASPER", "NORTON COMMANDER", "AVAST", "AGV", "NOD32"],
-    correctAnswers: [0, 2, 3, 4],
-    explanation: "Kasper(sky), Avast, AVG и NOD32 су антивирусни програми. Norton Commander је file manager.",
+    correctAnswers: [2, 4],
+    explanation: "Avast и NOD32 су антивирусни програми.",
   },
   {
     id: 113, type: "multi", subject: "os", points: 2,
-    question: "Приликом конфигурисања резервног копирања на Windows радној станици могуће је:",
+    question: "Приликом конфигурисања резервног копирања (бекапа) података на Windows радној станици могуће је одабрати следеће опције:",
     options: [
       "резервно копирање може да се врши на диск тог рачунара или на диск у мрежи",
       "резервно копирање може да се конфигурише само за фајл, не може за фолдер",
@@ -1297,7 +1297,7 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 114, type: "multi", subject: "os", points: 2,
-    question: "Као медијум за резервно копирање треба одабрати:",
+    question: "Као медијум за резервно копирање (бекап) треба одабрати:",
     options: [
       "локални диск рачунара предвиђен само за бекап",
       "мрежни диск другог рачунара предвиђен само за бекап",
@@ -1309,19 +1309,19 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 115, type: "multi", subject: "os", points: 2,
-    question: "Административни дељиви фолдери (крај имена $ ознака):",
+    question: "Административни дељиви фолдери на крају имена имају ознаку $ и",
     options: [
       "видљиви су у сваком прозору Windows Explorer-а",
       "видљиви су у чвору Shares Computer Management snap-ина",
       "може им се приступити из Network and Sharing Center",
-      "може им се приступити када се у Run унесе UNC путања",
+      "може им се приступити када се у Run унесе UNC (Universal Naming Convention) путања",
     ],
     correctAnswers: [1, 3],
-    explanation: "$ фолдери нису видљиви у Explorer-у, али јесу у Computer Management (Shares) и доступни UNC путањом.",
+    explanation: "Административни дељени фолдери (нпр. C$, ADMIN$) су скривени, па се не виде у Explorer-у. Могу се видети у Computer Management → Shares. Приступа им се директно преко UNC путање (нпр. \\računar\C$).",
   },
   {
     id: 116, type: "multi", subject: "os", points: 2,
-    question: "Покренута виртуелна машина успорила је хост. Да бисте повећали перформансе хоста:",
+    question: "Управо сте инсталирали нови оперативни систем унутар виртуелне машине. Примећујете да се извршење задатака у оперативном систему хоста знатно успорило. Да бисте повећали перформансе хоста:",
     options: [
       "инсталираћете више физичке меморије",
       "повећаћете величину виртуелног чврстог диска",
@@ -1335,7 +1335,7 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 117, type: "multi", subject: "os", points: 3,
-    question: "Које адресе спадају у конвенционалнo приватни опсег IP адреса?",
+    question: "Kоје од наведених адреса спадају у (конвенционално) приватни опсег IP адреса?",
     options: [
       "172.32.200.200",
       "10.10.10.1",
@@ -1349,7 +1349,7 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 118, type: "multi", subject: "os", points: 3,
-    question: "Из стања СПРЕМАН у стање СУСПЕНДОВАН И СПРЕМАН процес прелази из разлога:",
+    question: "Из стања СПРЕМАН у стање СУСПЕНДОВАН И СПРЕМАН процес прелази из неког од следећих разлога:",
     options: [
       "превелик број спремних процеса",
       "kako би се ослободила КЕШ меморија",
@@ -1357,12 +1357,12 @@ export const questions: QuizQuestion[] = [
       "kako би се ослободила радна меморија",
       "da mu ne bi isteklo додељено процесорско времe",
     ],
-    correctAnswers: [0, 2, 3],
-    explanation: "Процес иде у СУСПЕНДОВАН: прекомерно спремних процеса, ослобађање RAM-а или корисничка команда.",
+    correctAnswers: [0, 2],
+    explanation: "Процес се пребацује у стање суспендован и спреман када се измешта у секундарну меморију:",
   },
   {
     id: 119, type: "multi", subject: "os", points: 3,
-    question: "Означи објекте koji представљају Built-In групе (не корисничке налоге):",
+    question: "Наведене су неке од Built- In група и неки Built- In кориснички налози. Препознати који од наведених објеката представљају групе:",
     options: [
       "Administrator",
       "Guest",
@@ -1376,13 +1376,13 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 120, type: "multi", subject: "os", points: 3,
-    question: "Особине језгра оперативног система – означи тачне:",
+    question: "Особине језгра оперативног система су:",
     options: [
       "Језгро не користи рутине већ их предаје апликацијама",
       "У слојевитом моделу језгро је најближе хардверу",
-      "Dio језгра су апликациони програми koji се извршавају",
-      "Језгро одређује kada и на које доба ће процес добити процесор",
-      "Dio језгра су рутине за интерпроцесну комуникацију",
+      "Део језгра су апликациони програми који се извршавају",
+      "Језгро одређује када и на које време ће процес добити процесор",
+      "Део језгра су рутине за интерпроцесну комуникацију",
       "У слојевитом моделу језгро је најближе апликацијама",
     ],
     correctAnswers: [1, 3, 4],
@@ -1390,8 +1390,8 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 121, type: "multi", subject: "os", points: 3,
-    imageQuestion: true,
-    question: "Анализом обавештења о употреби квота [слика] може се закључити:",
+    imageQuestion: "/images/121.jpg",
+    question: "Анализом обавештења о употреби квота, које је приказано на слици, може се закључити:",
     options: [
       "квота није подешена над диском Е за корисника Profesor",
       "квота над диском Е, са лимитом 60 KB, је подешена за корисника Profesor",
@@ -1405,8 +1405,8 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 122, type: "multi", subject: "os", points: 3,
-    imageQuestion: true,
-    question: "На основу листинга ipconfig /all [слика] тачно је:",
+    imageQuestion: "/images/122.jpg",
+    question: "На основу података који су дати у листингу наредбе приказаном на слици, реализоване у Command Prompt-у, тачно је:",
     options: [
       "Излистани су параметри бежичног мрежног адаптера",
       "Мрежни адаптер је конфигурисан статички",
@@ -1414,54 +1414,54 @@ export const questions: QuizQuestion[] = [
       "DHCP сервер је адаптеру доделио IPv6 адресу",
       "На мрежном адаптеру оспособљен је TCP/IPv6 протокол",
     ],
-    correctAnswers: [2, 4],
-    explanation: "Из ipconfig: DHCP и DG адресе се разликују; IPv6 је оспособљен (приказана link-local адреса).",
+    correctAnswers: [0, 4],
+    explanation: "Из ipconfig: IPv6 је оспособљен (приказана link-local адреса).",
   },
   {
     id: 123, type: "multi", subject: "os", points: 3,
-    question: "На VM1 је дељени фолдер NASTAVA (Everyone: Full Control/Read&Execute) ali са осталих VM-ова није видљив. Могући узроци:",
+    question: "Школски рачунарски кабинет има десет рачунара повезаних у мрежу која функционише исправно. Ученици се пријављују на ове рачунаре преко локалних корисничких налога ограничених привилегија. За реализацију вежбе ученицима су потребни оперативни системи на које ће се пријавити преко администраторског налога. У ту сврху креиране су виртуелне машине, по једна радна станица на сваком рачунару у кабинету. Ученици су конфигурисали виртуелне машине да тестирају дељење ресурса у мрежи равноправних рачунара. На виртуелној машини PC-1 креиран је фолдер NASTAVA за који су подешене следеће дозволе: група/дозвола Sharing NTFS Everyone Full control Read & execute Тестирањем са осталих виртуелних машина ученици су установили да дељени фолдер није видљив. Могући узроци овог проблема су",
     options: [
-      "Помоћу тих VM-ова не може да се реализује описана мрежа",
-      "IP адресе VM-ова нису у истој мрежи",
-      "Sharing и NTFS дозволе нису добро подешене",
-      "Мрежна картица VM-ова није подешена да шаље податке у физичку мрежу",
+      "Помоћу тих виртуелних машина не може да се реализује описана мрежа",
+      "IP адресе виртуелних машина нису додељене тако да припадају истој мрежи",
+      "Sharing и NTFS дозволе за кориснике над фолдером нису добро подешене",
+      "Мрежна картица виртуелних машина није подешена да шаље податке у физичку мрежу",
     ],
     correctAnswers: [1, 3],
-    explanation: "Дељење ресурса захтева да VM-ови буду у истој мрежи и да мрежни адаптер шаље пакете у физичку мрежу.",
+    explanation: "ако машине нису у истом subnet-у, не могу да се међусобно виде, па ни share неће бити видљив. Aко је VM у NAT/host-only режиму, неће бити доступна другим рачунарима у кабинету.",
   },
   {
     id: 124, type: "multi", subject: "os", points: 3,
-    imageQuestion: true,
-    question: "Анализом података о рачунару [слика] може се закључити:",
+    imageQuestion: "/images/124.jpg",
+    question: "Анализом података о рачунару који су показани на слици може се закључити:",
     options: [
       "Рачунар користи UEFI boot loader",
       "Користи се енкрипција за заштиту података",
       "Рачунар има два хард диска",
       "Рачунар користи SSD диск капацитета 256GB",
     ],
-    correctAnswers: [0, 3],
-    explanation: "Слика приказује UEFI boot и SSD 256GB.",
+    correctAnswers: [0, 1],
+    explanation: "Слика приказује UEFI boot и BitLocker.",
   },
   {
     id: 125, type: "multi", subject: "os", points: 4,
-    question: "Stanica1 може да се повеже на WiFi1 (лош сигнал) и WiFi2 (јачи, доступан повремено). Конфигурисати да WiFi2 буде приоритетан кад год је доступан:",
+    question: "Рачунар са именом Stanica1 може да се повеже на бежичну мрежу под називом WiFi1 и бежичну мрежу под називом WiFi2. WiFi1 има лош сигнал и веза се често губи. WiFi2 је доступан само у одређено доба дана. WiFi2 има јачи сигнал који је поузданији од WiFi1. Морате да конфигуришете рачунар Stanica1 тако да користи WiFi2 кад год је то могуће. WiFi1 треба користити када WiFi2 није доступан. Да бисте то постигли потребно је да:",
     options: [
-      "У својствима за WiFi2, изабрати: Connect even if not broadcasting SSID",
-      "У својствима за WiFi1, изабрати: Connect automatically when in range",
-      "У својствима за WiFi1, изабрати: Enable WLAN connection settings",
-      "У својствима за WiFi2, изабрати: Connect automatically when in range",
-      "У својствима за WiFi1, изабрати: Look for other wireless networks while connected",
-      "У својствима за WiFi2, изабрати: Look for other wireless networks while connected",
+      "У својствима за WiFi2, изаберите опцију Connect even if the network is not broadcasting its name (SSID)",
+      "У својствима за WiFi1, изаберите опцију Connect automatically when this network is in range",
+      "У својствима за WiFi1, изаберите опцију Enable WLAN connection settings",
+      "У својствима за WiFi2, изаберите опцију Connect automatically when this network is in range",
+      "У својствима за WiFi1, изаберите опцију Look for other wireless networks while connected to this network",
+      "У својствима за WiFi2, изаберите опцију Look for other wireless networks while connected to this network",
     ],
-    correctAnswers: [1, 3],
-    explanation: "WiFi2: Connect automatically; WiFi1: Connect automatically (fallback). Виши приоритет добија WiFi2.",
+    correctAnswers: [5, 6],
+    explanation: "“Connect automatically when this network is in range” → обезбеђује да се рачунар увек повезује на WiFi2 кад је доступан (јачи и поузданији) a “Look for other wireless networks while connected to this network” → омогућава да систем аутоматски пређе на бољу мрежу (WiFi2) када постане доступна, а користи WiFi1 само када WiFi2 није доступан.",
   },
 
   // Fill-in (126–140)
   {
     id: 126, type: "fill", subject: "os", points: 1,
     question: "_____________ инсталација захтева коришћење датотеке одговора (answer file).",
-    correctAnswers: "Unattended",
+    correctAnswer: "Unattended",
     explanation: "Unattended (тиха) инсталација аутоматизује процес постављањем Windows-а преко датотеке одговора.",
   },
   {
@@ -1478,10 +1478,10 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 129, type: "fill", subject: "os", points: 1,
-    imageQuestion: true,
+    imageQuestion: "/images/129.jpg",
     question: "На слици је приказан дeo екрана програма ________________________.",
-    correctAnswer: "Reliability Monitor",
-    explanation: "Слика приказује Reliability Monitor – приказује историју стабилности система.",
+    correctAnswer: "Event Viewer",
+    explanation: "Слика приказује Event Viewer.",
   },
   {
     id: 130, type: "fill", subject: "os", points: 1,
