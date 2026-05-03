@@ -51,6 +51,27 @@ function scoreAnswer(question: QuizQuestion, answer: string): boolean {
         positions.every((v, i) => v === question.correctOrder[i])
       );
     }
+    if (question.type === "slot") {
+      const q = question as any;
+      if (q.slotMulti) {
+        // multi format: "4|1,2,5|3,6"
+        const userSlots = answer.split("|").map((s) => new Set(s.split(",").map(Number).filter(Boolean)));
+        const correctSlots = (q.correctSlotAnswers ?? []).map((ca: string[]) =>
+          new Set(ca[0].split(",").map(Number).filter(Boolean))
+        );
+        return correctSlots.every(
+          (correct: Set<number>, i: number) =>
+            [...correct].every((v) => userSlots[i]?.has(v)) &&
+            userSlots[i]?.size === correct.size
+        );
+      } else {
+        // dropdown format: "5,6,5,6"
+        const vals = answer.split(",").map(Number);
+        return (q.correctSlotAnswers ?? []).some((ca: string[]) =>
+          ca.every((v: string, i: number) => Number(v) === vals[i])
+        );
+      }
+    }
   } catch {
     return false;
   }
@@ -105,7 +126,6 @@ router.get("/dashboard", requireAuth, async (req, res) => {
   });
 });
 
-// GET /questions?subject=rh (optional subject filter)
 router.get("/questions", requireAuth, (req, res) => {
   try {
     const subjectKey = req.query["subject"] as string | undefined;
@@ -163,7 +183,6 @@ router.post("/attempts", requireAuth, async (req, res) => {
   });
 });
 
-// GET /scoreboard?subject=rh (optional subject filter)
 router.get("/scoreboard", requireAuth, async (req, res) => {
   const user = (req as AuthedRequest).user;
   const subjectKey = req.query["subject"] as string | undefined;
