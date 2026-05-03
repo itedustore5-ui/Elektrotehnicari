@@ -1548,16 +1548,17 @@ export const questions: QuizQuestion[] = [
   explanation: "На слици Disk Management волумен P приказује 6 GB корисног простора.",
 },
   {
-  id: 140,   type: "slot",   subject: "os",   points: 3,
-  imageQuestion: "/images/140.jpg",  
-  question: "На слици је дат дијаграм стања процеса. На линијама напиши одговарајуће називе стања процеса.",
-  slots: ["Лево (1)", "Средина доле (2)", "Десно доле (3)", "Крајње десно (4)"],
-  slotOptions: [1, 2, 3, 4, 5],
-  slotMulti: false,
-  // opcije kao stringovi
-  correctSlotAnswers: [["NEW"], ["READY"], ["WAITING"], ["TERMINATED"]],
-  explanation: "Стања процеса: NEW→READY→RUN→WAITING→READY (петља) и RUN→TERMINATED."
-  },
+  id: 140,
+  type: "fill",
+  subject: "os",
+  points: 3,
+  question: "На слици је дат дијаграм стања процеса. На линијама напиши одговарајуће називе стања процеса (лево, средина доле, десно доле, крајње десно).",
+  imageQuestion: "/images/140.jpg",
+  items: ["Лево", "Средина доле", "Десно доле", "Крајње десно"],
+  correctText: "new|ready|waiting|terminated",
+  hint: "Стања: NEW, READY, RUN, WAITING, TERMINATED",
+  explanation: "NEW→READY→RUN→WAITING→READY (петља), RUN→TERMINATED.",
+},
 
   // Match / Order (141–151)
   {
