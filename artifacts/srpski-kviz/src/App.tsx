@@ -664,68 +664,117 @@ function SlotUI({ question, locked, onCommit }: {
 }) {
   const slots = question.slots ?? [];
   const options = question.slotOptions ?? [];
+  const isMulti = question.slotMulti ?? false;
+
   const [selections, setSelections] = useState<Record<number, number>>({});
-  useEffect(() => { setSelections({}); }, [question.id]);
+  const [multiSelections, setMultiSelections] = useState<Record<number, Set<number>>>({});
+  useEffect(() => { setSelections({}); setMultiSelections({}); }, [question.id]);
 
+  // DROPDOWN
   const lockedSelections: Record<number, number> = useMemo(() => {
-    if (!locked) return selections;
+    if (!locked || isMulti) return selections;
     return Object.fromEntries(locked.split(",").map((v, i) => [i, Number(v)]));
-  }, [locked, selections]);
+  }, [locked, selections, isMulti]);
 
-  const allFilled = slots.every((_, i) => selections[i] !== undefined);
+  const dropdownAllFilled = slots.every((_, i) => selections[i] !== undefined);
+  const commitDropdown = () => onCommit(slots.map((_, i) => selections[i]).join(","));
 
-  const commit = () => {
-    const answer = slots.map((_, i) => selections[i]).join(",");
+  // MULTI
+  const lockedMultiSlots = locked?.split("|") ?? [];
+  const toggleMulti = (slotIdx: number, opt: number) => {
+    if (locked !== undefined) return;
+    setMultiSelections((prev) => {
+      const next = { ...prev };
+      const set = new Set(next[slotIdx] ?? []);
+      set.has(opt) ? set.delete(opt) : set.add(opt);
+      next[slotIdx] = set;
+      return next;
+    });
+  };
+  const multiAllFilled = slots.every((_, i) => (multiSelections[i]?.size ?? 0) > 0);
+  const commitMulti = () => {
+    const answer = slots.map((_, i) =>
+      [...(multiSelections[i] ?? [])].sort((a, b) => a - b).join(",")
+    ).join("|");
     onCommit(answer);
   };
 
+  const correctAns = question.correctSlotAnswers ?? [];
+
+  if (isMulti) {
+    return (
+      <div className="mt-4 grid gap-3">
+        <p className="text-sm text-blue-200 -mb-1">Означите бројеве за сваки тип:</p>
+        {slots.map((slot, i) => {
+          const selectedVals = locked !== undefined
+            ? new Set(lockedMultiSlots[i]?.split(",").map(Number).filter(Boolean) ?? [])
+            : (multiSelections[i] ?? new Set<number>());
+          const correctVals = new Set((correctAns[i]?.[0] ?? "").split(",").map(Number).filter(Boolean));
+          const isCorrect = locked !== undefined &&
+            [...correctVals].every((v) => selectedVals.has(v)) &&
+            selectedVals.size === correctVals.size;
+          const isWrong = locked !== undefined && !isCorrect;
+          return (
+            <div key={i} className={`rounded-2xl border p-3 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
+              <p className="text-xs md:text-sm font-bold text-blue-200 mb-2">{slot}</p>
+              <div className="flex flex-wrap gap-2">
+                {options.map((opt) => {
+                  const isSelected = selectedVals.has(opt);
+                  return (
+                    <button
+                      key={opt}
+                      disabled={locked !== undefined}
+                      onClick={() => toggleMulti(i, opt)}
+                      className={`rounded-xl border px-3 py-1.5 text-sm font-bold transition ${
+                        isSelected ? "border-white bg-white/25 text-white" : "border-white/20 bg-white/5 text-blue-200"
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+              {isWrong && <p className="mt-2 text-xs text-red-300">тачно: {correctAns[i]?.[0]}</p>}
+            </div>
+          );
+        })}
+        {locked === undefined && (
+          <button className="primary mt-2 w-full md:w-auto" disabled={!multiAllFilled} onClick={commitMulti}>
+            Потврди одговор
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // DROPDOWN MODE
   return (
     <div className="mt-4 grid gap-2 md:gap-3">
       <p className="text-sm text-blue-200 -mb-1">Изаберите редни број модула за сваки слот:</p>
       {slots.map((slot, i) => {
         const val = locked !== undefined ? lockedSelections[i] : selections[i];
-        const correctAns = question.correctSlotAnswers ?? [];
-        const isCorrect = locked !== undefined && correctAns.some((ca) => ca[i] === val);
+        const isCorrect = locked !== undefined && correctAns.some((ca) => Number(ca[i]) === val);
         const isWrong = locked !== undefined && !isCorrect;
         return (
-          <div
-            key={i}
-            className={`flex items-center gap-3 rounded-2xl border p-2 md:p-3 ${
-              isCorrect
-                ? "border-emerald-400/40 bg-emerald-500/15"
-                : isWrong
-                ? "border-red-400/40 bg-red-500/15"
-                : "border-white/10 bg-white/5"
-            }`}
-          >
+          <div key={i} className={`flex items-center gap-3 rounded-2xl border p-2 md:p-3 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
             <span className="w-20 shrink-0 text-xs md:text-sm font-bold text-blue-200">{slot}</span>
             <select
               className="rounded-xl border border-white/20 bg-slate-800 px-2 py-1.5 text-white text-sm"
               value={val ?? ""}
               disabled={locked !== undefined}
-              onChange={(e) =>
-                setSelections((prev) => ({ ...prev, [i]: Number(e.target.value) }))
-              }
+              onChange={(e) => setSelections((prev) => ({ ...prev, [i]: Number(e.target.value) }))}
             >
               <option value="">—</option>
               {options.map((opt) => (
                 <option key={opt} value={opt}>{opt}</option>
               ))}
             </select>
-            {isWrong && (
-              <span className="text-xs text-red-300">
-                тачно: {correctAns[0]?.[i]}
-              </span>
-            )}
+            {isWrong && <span className="text-xs text-red-300">тачно: {correctAns[0]?.[i]}</span>}
           </div>
         );
       })}
       {locked === undefined && (
-        <button
-          className="primary mt-2 w-full md:w-auto"
-          disabled={!allFilled}
-          onClick={commit}
-        >
+        <button className="primary mt-2 w-full md:w-auto" disabled={!dropdownAllFilled} onClick={commitDropdown}>
           Потврди одговор
         </button>
       )}
