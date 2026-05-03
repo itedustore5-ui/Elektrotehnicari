@@ -861,7 +861,7 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 76, type: "single", subject: "os", points: 1,
-    question: "Желите да ручно креирате тачку повратка пре измена на рачунару. Ручно креирање Restore Point је могуће:",
+    question: "Ви сте мрежни администратор мале компаније. У одељењу МАРКЕТИНГ правите неколико измена на рачунару који користи шеф одељења МАРКЕТИНГ. Пре него што извршите било какве промене, желите да креирате тачку повратка/враћања (Restore Point) која се може користити ако се појаве проблеми. Ручно креирање тачке враћања/повратка могуће је:",
     options: [
       "Коришћењем System Restore utility",
       "Коришћењем System Properties на картици System Protection",
@@ -873,7 +873,7 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 77, type: "single", subject: "os", points: 1,
-    imageQuestion: true,
+    imageQuestion: "/images/77.jpg",
     question: "На слици је приказан међукорак приликом креирања партиције на Disk0-у. Новој партицији може да се придружи латинично слово енглеског алфабета:",
     options: [
       "Било које слово од А до Z",
@@ -886,7 +886,7 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 78, type: "single", subject: "os", points: 1,
-    question: "Алат Disk Management могуће је покренути тако штo се у командној линији упише:",
+    question: "Алат Disk Management могуће је покренути тако што се у командној линији упише:",
     options: ["Diskmanagement.mcs", "Diskmgmt.msc", "Diskmanagement.msc", "Diskmgmt.mcs"],
     correctAnswer: 1,
     explanation: "Исправна команда је diskmgmt.msc (Microsoft Management Console snap-in).",
@@ -900,12 +900,12 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 80, type: "single", subject: "os", points: 1,
-    question: "Да бисте пронашли адресу рачунара са којим рачунар има активну TCP везу ви ћете:",
+    question: "Рачунар који администрирате има проблема са повезивањем на мрежу. Да бисте пронашли адресу било ког рачунара са којим рачунар има активну TCP везу ви ћете:",
     options: [
       "Из Windows Administrative Tools-а, отворићете Performance Monitor",
-      "У Control Panel-у, отворићете Network and Sharing Center",
+      "У Control Panel-у, отворићете Network and Internet и селектовати Network and Sharing Center",
       "Из Windows Administrative Tools-а, отворићете Resource Monitor",
-      "Отворићете Update and Security > Windows Security > Firewall and Network protection",
+      "Отворићете Update and Security, изабрати Windows Security и селектовати Firewall and Network protection",
     ],
     correctAnswer: 2,
     explanation: "Resource Monitor приказује активне мрежне конекције са IP адресама у реалном времену.",
@@ -924,7 +924,7 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 82, type: "single", subject: "os", points: 1,
-    question: "Подешавате рачунар са Windows 11 и Windows 10 на посебним партицијама. Да бисте обезбедили да се подразумевано увек покреће Windows 11:",
+    question: "Подешавате рачунар на коме треба да имате два оперативна система Windows 11 и Windows 10 који су инсталирани на посебним партицијама. Да бисте обезбедили да се подразумевано увек покреће Windows 11:",
     options: [
       "покренућете програм Bcdedit.exe са опцијом /default",
       "покренућете програм Bcdedit.exe са опцијом /bootcd",
@@ -936,7 +936,7 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 83, type: "single", subject: "os", points: 1,
-    question: "Три нова радника треба ограничити на максимум 2 GB простора на диску D. Потребно је дефинисати нову:",
+    question: "Фирма у којој сте администратор запослила је 3 нова радника на одређено време. Они ће своје податке чувати на D диску. Креирали сте корисничке налоге за сваког од њих и учланили их у групу Pripravnici. Желите да обезбедите да нико од њих може да користи више од 2 GB простора на диску. Да бисте то постигли потребно је да дефинишете нову:",
     options: [
       "меку квоту диска од 2 GB за групу Pripravnici",
       "чврсту квоту диска од 2 GB за групу Pripravnici",
@@ -946,18 +946,18 @@ export const questions: QuizQuestion[] = [
       "чврсту квоту диска од 2 GB за сваког корисника",
     ],
     correctAnswer: 5,
-    explanation: "Квоте диска се постављају по кориснику (не по групи), а чврста квота забрањује даље уписивање.",
+    explanation: "Потребно је ограничити сваког појединачног корисника на 2 GB, а не групу. „Чврста“ квота значи да корисник не може прекорачити лимит, док „мека“ служи само за упозорење.",
   },
   {
     id: 84, type: "single", subject: "os", points: 1,
-    question: "Датотека Projekti.doc (Full Control за Menadzeri) пребачена је у C:\\Poverljivo где Menadzeri имају Read. Ефективна дозвола корисника Marko (члан Menadzeri) над пребаченом датотеком је:",
+    question: "Групи Menadzeri доделили сте Full Control NTFS дозволу за датотеку C:\Documents\Projekti.doc. Премештате ову датотеку у директоријум C:\Poverljivo, где је групи Menadzeri додељена Read дозвола. Корисник са корисничким именом Marko, који је члан групе Menadzeri, приступа датотеци C:\Documents\Projekti.doc. Ефективна дозвола коју Marko има над овом датотеком је:",
     options: ["Full Control", "Modify", "Read", "Write"],
-    correctAnswer: 2,
-    explanation: "Када се датотека пребаци унутар исте партиције, наслеђује NTFS дозволе одредишне локације → Read.",
+    correctAnswer: 0,
+    explanation: "Када се датотека премешта унутар исте NTFS партиције, она задржава постојеће дозволе. Зато и после премештања Marko има Full Control, а не Read из новог фолдера.",
   },
   {
     id: 85, type: "single", subject: "os", points: 1,
-    question: "Желите да приступите подешавањима штампача Printer1 са другог рачунара у мрежи. Користићете:",
+    question: "Рачунар који администрирате има инсталиран Windows оперативни систем.и конфигурисан штампач са именом Printer1. Да бисте приступили подешавањима тог штампача са другог рачунара у мрежи користићете:",
     options: [
       "Device Manager из Control Panel-а",
       "Print Management из Administrative Tools-а",
@@ -965,11 +965,11 @@ export const questions: QuizQuestion[] = [
       "Devices and Printers из Control Panel-а",
     ],
     correctAnswer: 1,
-    explanation: "Print Management конзола омогућава централизовано управљање штампачима на мрежи.",
+    explanation: "Print Management омогућава управљање штампачима и са удаљених рачунара у мрежи, док остале опције углавном служе за локална подешавања.",
   },
   {
     id: 86, type: "single", subject: "os", points: 1,
-    question: "Корисник жели да PDF датотеке буду увек у Adobe Reader уместо Microsoft Edge. Користиће:",
+    question: "Након најновијег ажурирања за Windows, корисник вам пријављује да се PDF датотеке отварају у програму Microsoft Edge уместо у програму Adobe Reader. Да бисте обезбедили отварање свих PDF датотека у програму Adobe Reader користићете:",
     options: [
       "Network and Sharing Center",
       "Programs and Features",
@@ -977,12 +977,12 @@ export const questions: QuizQuestion[] = [
       "Add or Remove Program",
     ],
     correctAnswer: 2,
-    explanation: "Settings > Apps > Default Apps омогућава постављање подразумеваних апликација по типу фајла.",
+    explanation: "У подешавањима Default Apps подешава се који програм се користи за отварање одређених типова датотека (нпр. .pdf), па ту поставиш Adobe Reader као подразумевани.",
   },
   {
     id: 87, type: "single", subject: "os", points: 1,
-    imageQuestion: true,
-    question: "Отварате Disk Management [слика]. Да бисте креирали нову партицију на диску 0:",
+    imageQuestion: "/images/51.jpg",
+    question: "Отварате Disk Management на рачунару који сервисирате и затичете ситуацију као на слици. Да бисте креирали нову партицију на диску 0:",
     options: [
       "смањићете волумен C",
       "компресоваћете волумен C",
@@ -994,7 +994,7 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 88, type: "single", subject: "os", points: 1,
-    question: "Након ажурирања Windows-а корисник не може да користи локално повезане уређаје. Поновно покретање није помогло. Ви ћете:",
+    question: "Корисник вам се обраћа за помоћ у вези са лаптоп рачунаром. Након ажурирања Windows оперативног система, корисник више не може да користи одређене локално повезане уређаје, а поновно покретање није решило проблем. Да бисте решили пр",
     options: [
       "онемогућити услугу Windows Update",
       "проверити да ли постоје ажурирања",
@@ -1002,11 +1002,11 @@ export const questions: QuizQuestion[] = [
       "вратити ажурирања у претходно стање",
     ],
     correctAnswer: 3,
-    explanation: "Uninstall updates враћа проблематично ажурирање Windows-а које је изазвало некомпатибилност.",
+    explanation: "Ако су проблеми настали након Windows ажурирања и restart није помогао, најбрже решење је враћање (rollback) ажурирања, јер се тиме враћа претходно стабилно стање система и уклања проблематична измена.",
   },
   {
     id: 89, type: "single", subject: "os", points: 1,
-    question: "На нелоцираном простору диска може да се направи само нова партиција, не и simple волумен. Узрок је:",
+    question: "Желите да направите нови simplе (прост) волумен на новом нелоцираном простору на диску. Отварате Disk Management и констатујете да на том нелоцираном простору имате могућност само да направите нову партицију. Закључујете да не можете да извршите задатак јер:",
     options: [
       "диск има лоше секторе",
       "диск је основни (basic), а не динамички",
@@ -1014,12 +1014,12 @@ export const questions: QuizQuestion[] = [
       "на диску се налазе шифрирани подаци",
     ],
     correctAnswer: 1,
-    explanation: "Simple/spanned/striped волумени захтевају динамички диск; на basic диску постоје само партиције.",
+    explanation: "SНа основном (Basic) диску може се креирати само партиција, док се simple volume прави на динамичком диску. Зато је потребно конвертовати диск у динамички да би се направио simple volume.",
   },
   {
     id: 90, type: "single", subject: "os", points: 2,
-    imageQuestion: true,
-    question: "Мрежни адаптер је конфигурисан [слика - Obtain IP automatically], повезан на свич, у мрежи нема DHCP сервера. Мрежни адаптер ће добити IP адресу:",
+    imageQuestion: "/images/90.jpg",
+    question: "Мрежни адаптер је повезан на рачунар и конфигурисан како је приказано на слици, а мрежним каблом је спојен на свич. У мрежи не постоји DHCP сервер. Мрежни адаптер ће добити следећу IP адресу:",
     options: [
       "169.254.218.132",
       "0.0.0.0",
@@ -1027,8 +1027,8 @@ export const questions: QuizQuestion[] = [
       "172.30.30.5",
       "172.30.30.60",
     ],
-    correctAnswer: 0,
-    explanation: "Без DHCP сервера Windows додељује APIPA адресу из опсега 169.254.0.0/16.",
+    correctAnswer: 3,
+    explanation: "Када DHCP није доступан и постоји User configured Alternate Configuration, Windows користи те адресе уместо APIPA (169.254.x.x). APIPA се користи само ако је изабрано „Automatic private IP address" на Alternate Configuration картици.",
   },
   {
     id: 91, type: "single", subject: "os", points: 2,
