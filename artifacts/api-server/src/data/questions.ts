@@ -597,14 +597,11 @@ export const questions: QuizQuestion[] = [
   correctSlotAnswers: [[2, 2, 1, 2, 2, 1, 1, 1]],
   explanation: "Улазни (1): скенер, тастатура, миш, микрофон. Излазни (2): монитор, штампач, плотер, звучник.",
 },
- {
-  id: 50,   type: "slot",  subject: "hardware",   points: 4,
-  question: "На слици је блок шема делова матичне плоче. Бројевима су означене магистрале. На десној страни наведени су типови магистрала подељени према положају у односу на процесор и према брзини. На линији испред типа магистрале уписати бројеве магистрала са слике које одговарају том типу.",
-  imageQuestion: "/images/50.jpg",
+{
+  id: 50,   type: "slot",   subject: "hardware",  points: 4,
   slots: ["Унутрашња магистрала", "Спољашња бржа магистрала", "Спољашња спорија магистрала"],
   slotOptions: [1, 2, 3, 4, 5, 6],
-  correctSlotAnswers: [ [4], [1, 2, 5], [3, 6]],
-  explanation: "Унутрашња: 4 (CPU↔NorthBridge). Спољашња бржа: 1 (RAM), 2 (NB↔SB), 5 (AGP). Спољашња спорија: 3 (PCI slots), 6 (HDD/Ethernet/Sound/USB).",
+  correctSlotAnswers: [["4, , "], ["1,2,5"], ["3,6, "]],  // string[] po slotu
 },
   {
     id: 51, type: "order", subject: "hardware", points: 4,
