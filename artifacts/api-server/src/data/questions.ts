@@ -1032,14 +1032,14 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 91, type: "single", subject: "os", points: 2,
-    question: "Сумњате на малициозни софтвер koji је додао ставку у сервисе при покретању ОС-а. Алат за проверу:",
+    question: "На једној Windows радној станици сумњате на постојање малициозног софтвера који је додао ставку у сервисе који се стартују при покретању оперативног система. Алатка којa ће вам помоћи да проверите своју претпоставку је:",
     options: ["chkdsk", "msconfig", "dxdiag", "regsvr32"],
     correctAnswer: 1,
     explanation: "msconfig (System Configuration) приказује програме и сервисе при покретању и омогућава управљање.",
   },
   {
     id: 92, type: "single", subject: "os", points: 2,
-    question: "На Linux радној станици треба вратити backup pod2022.tar.gz (у ~/backup) у фолдер ~/podaci. Одзивник: pera@pc01:~/backup. Исправна команда је:",
+    question: "На Linux радној станици кориснику треба вратити садржај резервне копије(backup-a) из датотеке pod2022.tar.gz која се налази у корисничком фолдеру backup корисника pera. Садржај резервне копије корисник жели у фолдеру podaci у оквиру свог корисничког фолдера. Команда која ће вратити податке на жељену локацију ако ваш одзивник тренутно показује pera@pc01:~/backup је:",
     options: [
       "tar -xzvf /home/pera/backup/pod2022.tar.gz -c /home/pera/podaci",
       "tar -xzvf pod2022.tar.gz -C ../podaci",
@@ -1047,12 +1047,12 @@ export const questions: QuizQuestion[] = [
       "tar -xzfv /pod2022.tar.gz -C /podaci",
     ],
     correctAnswer: 1,
-    explanation: "-C ../podaci усмерава распакивање у суседни фолдер podaci.",
+    explanation: "Пошто се већ налазиш у фолдеру ~/backup, довољно је да наведеш архиву и користиш опцију -C да одредиш одредишни фолдер (../podaci). Команда исправно распакује .tar.gz архиву у жељени директоријум.",
   },
   {
     id: 93, type: "single", subject: "os", points: 2,
-    imageQuestion: true,
-    question: "DHCP сервер је доделио PC1: IP 10.10.100.1, SM 255.255.255.0, DG 10.10.100.101, DNS 8.8.8.8. PC1 не може да приступи интернету [слика мреже]. Потребно је:",
+    imageQuestion: "/images/93.jpg",
+    question: "У мрежи на слици DHCP сервер је доделио следећу адресу рачунару PC1. Корисник пријављује да са рачунара PC1 не може да приступи интернету. Да би PC1 имао излаз на интернет потребно је:",
     options: [
       "променити адресу интерфејса Fa0/0 на рутеру",
       "контактирати интернет сервис провајдера јер је квар ван LAN мреже",
@@ -1064,7 +1064,7 @@ export const questions: QuizQuestion[] = [
   {
     id: 94, type: "single", subject: "os", points: 2,
     imageQuestion: true,
-    question: "PC1 не може на интернет [слика: ipconfig приказује DG 192.168.0.1 и DNS 142.13.18.6; ping DNS-а тajмаут]. Да би се решио проблем потребно је:",
+    question: "Корисник је пријавио да са PC1 не може да приступи Интернету. Извршењем наредби за тестирање везе добија се: Да би се решио проблем потребно је:",
     options: [
       "променити адресу default gateway-а на PC1",
       "променити subnet mask на PC1",
