@@ -1028,7 +1028,7 @@ export const questions: QuizQuestion[] = [
       "172.30.30.60",
     ],
     correctAnswer: 3,
-    explanation: "Када DHCP није доступан и постоји User configured Alternate Configuration, Windows користи те адресе уместо APIPA (169.254.x.x). APIPA се користи само ако је изабрано „Automatic private IP address" на Alternate Configuration картици.",
+    explanation: "Када DHCP није доступан и постоји User configured Alternate Configuration, Windows користи те адресе уместо APIPA (169.254.x.x). APIPA се користи само ако је изабрано „Automatic private IP address на Alternate Configuration картици.",
   },
   {
     id: 91, type: "single", subject: "os", points: 2,
