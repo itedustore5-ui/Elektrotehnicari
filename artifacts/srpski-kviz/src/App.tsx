@@ -139,7 +139,14 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
       const exp = [...(question.correctAnswers ?? [])].sort((a, b) => a - b);
       return sel.length === exp.length && sel.every((v, i) => v === exp[i]);
     }
-    if (question.type === "fill") return answer.trim().toLowerCase() === (question.correctText ?? "").trim().toLowerCase();
+    if (question.type === "fill") {
+  if (question.items && question.items.length > 0) {
+    const parts = answer.split("|").map((s) => s.trim().toLowerCase());
+    const correct = (question.correctText ?? "").split("|").map((s) => s.trim().toLowerCase());
+    return parts.length === correct.length && parts.every((v, i) => v === correct[i]);
+  }
+  return answer.trim().toLowerCase() === (question.correctText ?? "").trim().toLowerCase();
+}
     if (question.type === "match") {
       const pairs = answer.split(",").map(Number);
       return pairs.every((v, i) => v === (question.correctPairs ?? [])[i]);
@@ -489,13 +496,62 @@ function FillUI({ question, locked, onCommit, onRegisterConfirm }: {
   onCommit: (answer: string) => void;
   onRegisterConfirm?: (fn: () => void) => void;
 }) {
+  const items = question.items ?? [];
+  const isMulti = items.length > 0;
   const [text, setText] = useState("");
-  useEffect(() => { setText(""); }, [question.id]);
-  const commit = () => { if (text.trim()) onCommit(text.trim()); };
-  useEffect(() => { onRegisterConfirm?.(commit); }, [text, question.id]);
+  const [multiText, setMultiText] = useState<string[]>([]);
+  useEffect(() => { setText(""); setMultiText([]); }, [question.id]);
+  useEffect(() => {
+    if (isMulti) {
+      onRegisterConfirm?.(commitMulti);
+    } else {
+      onRegisterConfirm?.(commitSingle);
+    }
+  }, [text, multiText, question.id, isMulti]);
+
+  const commitSingle = () => { if (text.trim()) onCommit(text.trim()); };
+  const commitMulti = () => {
+    if (multiText.every((t) => t.trim())) onCommit(multiText.map((t) => t.trim()).join("|"));
+  };
+
+  const lockedParts = locked?.split("|") ?? [];
+  const correctParts = (question.correctText ?? "").split("|");
+  const isMultiCorrect = (i: number) =>
+    lockedParts[i]?.trim().toLowerCase() === correctParts[i]?.trim().toLowerCase();
+  const allFilled = multiText.length === items.length && multiText.every((t) => t.trim().length > 0);
+
+  if (isMulti) {
+    return (
+      <div className="mt-2 grid gap-2">
+        {question.hint && <p className="text-xs italic text-blue-300">Напомена: {question.hint}</p>}
+        {items.map((item, i) => {
+          const isCorrect = locked !== undefined && isMultiCorrect(i);
+          const isWrong = locked !== undefined && !isMultiCorrect(i);
+          return (
+            <div key={i} className={`rounded-xl border p-2 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
+              <p className="text-xs font-bold text-blue-200 mb-1">{item}</p>
+              <input
+                className="input text-xs py-1"
+                placeholder="Упишите одговор..."
+                value={locked !== undefined ? (lockedParts[i] ?? "") : (multiText[i] ?? "")}
+                disabled={locked !== undefined}
+                onChange={(e) => {
+                  const next = [...multiText];
+                  next[i] = e.target.value;
+                  setMultiText(next);
+                }}
+                onKeyDown={(e) => { if (e.key === "Enter" && allFilled) commitMulti(); }}
+              />
+              {isWrong && <p className="mt-1 text-[10px] text-red-300">тачно: {correctParts[i]}</p>}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
-    <div className="mt-3">
+    <div className="mt-2">
       {question.hint && <p className="mb-2 text-xs italic text-blue-300">Напомена: {question.hint}</p>}
       <input
         className="input text-sm"
@@ -503,11 +559,37 @@ function FillUI({ question, locked, onCommit, onRegisterConfirm }: {
         value={locked !== undefined ? locked : text}
         disabled={locked !== undefined}
         onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter") commit(); }}
+        onKeyDown={(e) => { if (e.key === "Enter") commitSingle(); }}
       />
       {locked !== undefined && (
         <p className={`mt-2 font-black text-xs ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
-          {isAnswerCorrect(question, locked) ? "✓ Тачно" : `✗ Нетачан одговор — тачно: ${question.correctText}`}
+          {isAnswerCorrect(question, locked) ? "✓ Тачно" : `✗ Нетачно — тачан одговор: ${question.correctText}`}
+        </p>
+      )}
+    </div>
+  );
+}
+
+  // SINGLE mode
+  return (
+    <div className="mt-4">
+      {question.hint && <p className="mb-3 text-sm italic text-blue-300">Напомена: {question.hint}</p>}
+      <input
+        className="input text-base md:text-xl"
+        placeholder="Упишите одговор..."
+        value={locked !== undefined ? locked : text}
+        disabled={locked !== undefined}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") commitSingle(); }}
+      />
+      {locked === undefined && (
+        <button className="primary mt-3 w-full md:w-auto" disabled={text.trim().length === 0} onClick={commitSingle}>
+          Потврди одговор
+        </button>
+      )}
+      {locked !== undefined && (
+        <p className={`mt-3 font-black text-sm md:text-base ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
+          {isAnswerCorrect(question, locked) ? "Тачно" : `Нетачно — тачан одговор: ${question.correctText}`}
         </p>
       )}
     </div>
