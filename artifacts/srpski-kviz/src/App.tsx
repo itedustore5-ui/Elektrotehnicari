@@ -203,7 +203,7 @@ function Shell({ user, onLogout, children }: { user: AuthUser; onLogout: () => v
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#1d4ed8_0,#111827_36%,#312e81_100%)] text-white">
       <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/55 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 md:px-4 md:py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-1 md:px-4 md:py-4">
           <button onClick={() => { navigate("/dashboard"); setMenuOpen(false); }} className="text-left">
             <p className="text-xs uppercase tracking-[0.35em] text-blue-200 hidden sm:block">Матурски квиз</p>
             <h1 className="text-sm font-black md:text-xl">Електротехничар рачунара</h1>
@@ -1000,7 +1000,7 @@ function QuizPage() {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-20 md:static md:z-auto md:mt-5 bg-slate-950/90 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-t border-white/10 md:border-0 px-3 py-3 md:px-0 md:py-0">
+      <div className="fixed bottom-0 left-0 right-0 z-20 md:static md:z-auto md:mt-5 bg-slate-950/75 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-t border-white/10 md:border-0 px-3 py-1.5 md:px-0 md:py-0">
         <div className="mx-auto max-w-5xl flex items-center justify-between gap-2">
           <button
             className="secondary py-2 px-4 text-sm"
@@ -1010,14 +1010,14 @@ function QuizPage() {
             ← Назад
           </button>
 
-          <div className="flex flex-wrap justify-center gap-1">
-            {questions.map((item, index) => {
+          <div className="flex flex-wrap justify-center gap-0.5 max-h-8 overflow-hidden">
+  {questions.map((item, index) => {
               const ans = answers[item.id];
               const state = ans === undefined ? "bg-white/20" : isAnswerCorrect(item, ans) ? "bg-emerald-400" : "bg-red-400";
               return (
-                <button
-                  key={item.id}
-                  className={`h-3 w-3 md:h-4 md:w-4 rounded ${state} ${index === current ? "ring-2 ring-white" : ""}`}
+      <button
+        key={item.id}
+        className={`h-2 w-2 md:h-4 md:w-4 rounded ...`}
                   title={`Питање ${item.id}`}
                   onClick={() => setCurrent(index)}
                 />
