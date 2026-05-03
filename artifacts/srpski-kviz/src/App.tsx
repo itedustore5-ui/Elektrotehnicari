@@ -57,6 +57,7 @@ type DashboardStats = {
   lockReason: string | null;
   subjectScores: SubjectScore[];
 };
+
 type ScoreboardEntry = {
   rank: number;
   username: string;
@@ -65,6 +66,7 @@ type ScoreboardEntry = {
   attemptsCount: number;
   lastScore: number | null;
 };
+
 type AdminResult = {
   id: number;
   username: string;
@@ -140,13 +142,13 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
       return sel.length === exp.length && sel.every((v, i) => v === exp[i]);
     }
     if (question.type === "fill") {
-  if (question.items && question.items.length > 0) {
-    const parts = answer.split("|").map((s) => s.trim().toLowerCase());
-    const correct = (question.correctText ?? "").split("|").map((s) => s.trim().toLowerCase());
-    return parts.length === correct.length && parts.every((v, i) => v === correct[i]);
-  }
-  return answer.trim().toLowerCase() === (question.correctText ?? "").trim().toLowerCase();
-}
+      if (question.items && question.items.length > 0) {
+        const parts = answer.split("|").map((s) => s.trim().toLowerCase());
+        const correct = (question.correctText ?? "").split("|").map((s) => s.trim().toLowerCase());
+        return parts.length === correct.length && parts.every((v, i) => v === correct[i]);
+      }
+      return answer.trim().toLowerCase() === (question.correctText ?? "").trim().toLowerCase();
+    }
     if (question.type === "match") {
       const pairs = answer.split(",").map(Number);
       return pairs.every((v, i) => v === (question.correctPairs ?? [])[i]);
@@ -405,10 +407,6 @@ function Stat({ title, value }: { title: string; value: string | number }) {
   );
 }
 
-// ── ANSWER BUTTON STYLES ──────────────────────────────────────────────────────
-// Kompaktnija verzija — manji padding, manji font, manji border-radius
-// Svaki odgovor zauzima minimum prostora ali ostaje čitljiv
-
 function SingleUI({ question, shuffleMap, locked, onCommit }: {
   question: Question;
   shuffleMap: Record<number, number[]>;
@@ -500,6 +498,7 @@ function FillUI({ question, locked, onCommit, onRegisterConfirm }: {
   const isMulti = items.length > 0;
   const [text, setText] = useState("");
   const [multiText, setMultiText] = useState<string[]>([]);
+
   useEffect(() => { setText(""); setMultiText([]); }, [question.id]);
   useEffect(() => {
     if (isMulti) {
@@ -570,31 +569,6 @@ function FillUI({ question, locked, onCommit, onRegisterConfirm }: {
   );
 }
 
-  // SINGLE mode
-  return (
-    <div className="mt-4">
-      {question.hint && <p className="mb-3 text-sm italic text-blue-300">Напомена: {question.hint}</p>}
-      <input
-        className="input text-base md:text-xl"
-        placeholder="Упишите одговор..."
-        value={locked !== undefined ? locked : text}
-        disabled={locked !== undefined}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter") commitSingle(); }}
-      />
-      {locked === undefined && (
-        <button className="primary mt-3 w-full md:w-auto" disabled={text.trim().length === 0} onClick={commitSingle}>
-          Потврди одговор
-        </button>
-      )}
-      {locked !== undefined && (
-        <p className={`mt-3 font-black text-sm md:text-base ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
-          {isAnswerCorrect(question, locked) ? "Тачно" : `Нетачно — тачан одговор: ${question.correctText}`}
-        </p>
-      )}
-    </div>
-  );
-}
 function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
   question: Question;
   locked: string | undefined;
@@ -912,9 +886,7 @@ function QuizPage() {
       .catch((err) => setError(err.message));
   };
 
-  useEffect(() => {
-    loadQuestions(subjectKey);
-  }, [subjectKey]);
+  useEffect(() => { loadQuestions(subjectKey); }, [subjectKey]);
 
   const commit = (answer: string) => {
     if (!question || answers[question.id] !== undefined) return;
@@ -971,12 +943,9 @@ function QuizPage() {
   const locked = answers[question.id];
   const progress = Math.round((answeredCount / Math.max(questions.length, 1)) * 100);
 
-  // ── BOTTOM BAR HEIGHT estimate: ~72px on mobile ──
-  // Padding-bottom on question card to never hide behind bar
   return (
     <section className="mx-auto max-w-5xl" style={{ paddingBottom: "80px" }}>
 
-      {/* ── Top strip: counter + progress + quick buttons ── */}
       <div className="mb-1.5 flex items-center gap-1.5">
         <span className="text-[11px] font-bold text-white whitespace-nowrap">
           {current + 1}/{questions.length}
@@ -1004,10 +973,8 @@ function QuizPage() {
         </button>
       </div>
 
-      {/* ── Question card — kompaktno ── */}
       <div className="rounded-2xl border border-white/10 bg-white/8 shadow-xl backdrop-blur px-3 py-3 md:px-5 md:py-4">
 
-        {/* Meta row */}
         <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
           <span className="text-[11px] font-black text-blue-300">#{question.id}</span>
           <span className="rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[10px] text-blue-300">
@@ -1024,7 +991,6 @@ function QuizPage() {
           )}
         </div>
 
-        {/* Question image — ograničena visina na mobilnom */}
         {question.imageQuestion && (
           <img
             src={question.imageQuestion}
@@ -1034,10 +1000,8 @@ function QuizPage() {
           />
         )}
 
-        {/* Question text — manji font na mobilnom */}
         <h3 className="text-sm font-bold leading-snug md:text-xl md:font-black">{question.question}</h3>
 
-        {/* Answer UIs */}
         {question.type === "single" && (
           <SingleUI question={question} shuffleMap={shuffleMap} locked={locked} onCommit={commit} />
         )}
@@ -1057,8 +1021,7 @@ function QuizPage() {
           <SlotUI question={question} locked={locked} onCommit={commit} onRegisterConfirm={(fn) => { confirmRef.current = fn; }} />
         )}
 
-        {/* Explanation */}
-        {locked !== undefined && question.type !== "fill" && question.type !== "match" && (
+        {locked !== undefined && question.type !== "match" && (
           <div className="mt-3 rounded-xl border border-white/10 bg-slate-950/35 p-3">
             <p className={`font-black text-xs ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
               {isAnswerCorrect(question, locked) ? "✓ Тачно!" : "✗ Нетачно"}
@@ -1075,11 +1038,8 @@ function QuizPage() {
 
       {error && <p className="mt-3 rounded-xl bg-red-500/20 p-3 text-red-100 text-xs">{error}</p>}
 
-      {/* ── Fixed bottom navigation bar ── kompaktna ── */}
       <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-slate-950/90 backdrop-blur-xl px-3 py-2">
         <div className="mx-auto max-w-5xl flex flex-col gap-1.5">
-
-          {/* Назад / Потврди / Напред */}
           <div className="flex items-center gap-1.5">
             <button
               className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-blue-200 hover:bg-white/10 transition disabled:opacity-30 shrink-0"
@@ -1121,7 +1081,6 @@ function QuizPage() {
             )}
           </div>
 
-          {/* Progress dots — sitnije */}
           <div className="flex flex-wrap justify-center gap-0.5">
             {questions.map((item, index) => {
               const ans = answers[item.id];
@@ -1141,7 +1100,6 @@ function QuizPage() {
               );
             })}
           </div>
-
         </div>
       </div>
     </section>
