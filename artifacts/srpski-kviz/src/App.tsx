@@ -23,6 +23,7 @@ type Question = {
   question: string;
   explanation: string;
   imageQuestion: string | null;
+  points?: number;
   options?: string[];
   correctAnswer?: number;
   correctAnswers?: number[];
@@ -34,10 +35,10 @@ type Question = {
   items?: string[];
   correctOrder?: number[];
   hasSkips?: boolean;
-  // slot
   slots?: string[];
   slotOptions?: number[];
-  correctSlotAnswers?: number[][];
+  correctSlotAnswers?: string[][];
+  slotMulti?: boolean;
 };
 
 type SubjectScore = {
@@ -148,10 +149,24 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
       return pos.every((v, i) => v === (question.correctOrder ?? [])[i]);
     }
     if (question.type === "slot") {
-      const vals = answer.split(",").map(Number);
-      return (question.correctSlotAnswers ?? []).some(
-        (ca) => ca.every((v, i) => v === vals[i])
-      );
+      if (question.slotMulti) {
+        // format: "4|1,2,5|3,6"
+        const userSlots = answer.split("|").map((s) => new Set(s.split(",").map(Number).filter(Boolean)));
+        const correctSlots = (question.correctSlotAnswers ?? []).map((ca) =>
+          new Set(ca[0].split(",").map(Number).filter(Boolean))
+        );
+        return correctSlots.every(
+          (correct, i) =>
+            [...correct].every((v) => userSlots[i]?.has(v)) &&
+            userSlots[i]?.size === correct.size
+        );
+      } else {
+        // format: "5,6,5,6"
+        const vals = answer.split(",").map(Number);
+        return (question.correctSlotAnswers ?? []).some((ca) =>
+          ca.every((v, i) => Number(v) === vals[i])
+        );
+      }
     }
   } catch { return false; }
   return false;
@@ -265,7 +280,7 @@ function Login({ onLogin }: { onLogin: (user: AuthUser) => void }) {
         <div className="p-8 md:p-12">
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.35em] text-blue-200">Припрема</p>
           <h1 className="text-4xl font-black leading-tight md:text-6xl">Припрема за матурски испит.</h1>
-          <p className="mt-6 max-w-xl text-lg text-blue-100">Једно питање по једно, objašnjenje после сваког одговора, јасан напредак.</p>
+          <p className="mt-6 max-w-xl text-lg text-blue-100">Једно питање поједно, objašnjenje после сваког одговора, јасан напредак.</p>
         </div>
         <form onSubmit={submit} className="bg-slate-950/45 p-8 md:p-12">
           <h2 className="text-2xl font-black">Пријава</h2>
@@ -517,12 +532,26 @@ function MatchUI({ question, locked, onCommit }: {
 
   const clickLeft = (li: number) => {
     if (locked !== undefined) return;
-    setSelectedLeft((prev) => (prev === li ? null : li));
+    if (selectedLeft === li) {
+      setSelectedLeft(null);
+    } else if (pairs[li] !== undefined && selectedLeft === null) {
+      setPairs((prev) => { const next = { ...prev }; delete next[li]; return next; });
+      setSelectedLeft(li);
+    } else {
+      setSelectedLeft(li);
+    }
   };
 
   const clickRight = (ri: number) => {
     if (locked !== undefined || selectedLeft === null) return;
-    setPairs((prev) => ({ ...prev, [selectedLeft]: ri }));
+    setPairs((prev) => {
+      const next = { ...prev };
+      for (const key of Object.keys(next)) {
+        if (next[Number(key)] === ri) delete next[Number(key)];
+      }
+      next[selectedLeft] = ri;
+      return next;
+    });
     setSelectedLeft(null);
   };
 
@@ -845,9 +874,7 @@ function QuizPage() {
     }
   };
 
-  const restart = () => {
-    loadQuestions(subjectKey);
-  };
+  const restart = () => { loadQuestions(subjectKey); };
 
   if (result) {
     return (
@@ -913,6 +940,11 @@ function QuizPage() {
               question.type === "match" ? "Повезивање" :
               question.type === "slot" ? "Слотови" : "Редослед"}
           </span>
+          {question.points != null && (
+            <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-2 py-0.5 text-xs text-yellow-300 font-bold">
+              {question.points} {question.points === 1 ? "бод" : "бода"}
+            </span>
+          )}
         </div>
 
         {question.imageQuestion && (
@@ -945,7 +977,7 @@ function QuizPage() {
           <SlotUI question={question} locked={locked} onCommit={commit} />
         )}
 
-        {locked !== undefined && question.type !== "fill" && question.type !== "match" && (
+        {locked !== undefined && question.type !== "fill" && question.type !== "match" && question.type !== "slot" && (
           <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
             <p className={`font-black text-sm md:text-base ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
               {isAnswerCorrect(question, locked) ? "Тачно!" : "Нетачно"}
@@ -956,6 +988,14 @@ function QuizPage() {
         {locked !== undefined && (question.type === "match" || question.type === "fill") && (
           <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
             <p className="text-sm text-blue-100">{question.explanation}</p>
+          </div>
+        )}
+        {locked !== undefined && question.type === "slot" && (
+          <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
+            <p className={`font-black text-sm md:text-base ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
+              {isAnswerCorrect(question, locked) ? "Тачно!" : "Нетачно"}
+            </p>
+            <p className="mt-2 text-sm text-blue-50">{question.explanation}</p>
           </div>
         )}
       </div>
