@@ -914,11 +914,10 @@ function QuizPage() {
             Питање {current + 1} од {questions.length}
             {subjectLabel && <span className="ml-2 text-blue-300">— {subjectLabel}</span>}
           </p>
-          <h2 className="text-xl md:text-3xl font-black">Квиз</h2>
         </div>
         <div className="flex gap-2">
           {subjectKey && (
-            <button className="secondary text-sm py-1.5 px-3" onClick={() => navigate("/dashboard")}>
+            <button className="secondary text-sm py-1 px-2" onClick={() => navigate("/dashboard")}>
               ← Dashboard
             </button>
           )}
@@ -1000,30 +999,44 @@ function QuizPage() {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-20 md:static md:z-auto md:mt-5 bg-slate-950/75 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-t border-white/10 md:border-0 px-3 py-1.5 md:px-0 md:py-0">
-        <div className="mx-auto max-w-5xl flex items-center justify-between gap-2">
+     <div className="fixed bottom-0 left-0 right-0 z-20 md:static md:z-auto md:mt-5 bg-slate-950/75 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-t border-white/10 md:border-0 px-3 py-1.5 md:px-0 md:py-0">
+  <div className="mx-auto max-w-5xl flex flex-col gap-1">
+    {/* Progress dots — sitni, na vrhu navigacije */}
+    <div className="flex flex-wrap justify-center gap-0.5 max-h-6 overflow-hidden">
+      {questions.map((item, index) => {
+        const ans = answers[item.id];
+        const state = ans === undefined ? "bg-white/20" : isAnswerCorrect(item, ans) ? "bg-emerald-400" : "bg-red-400";
+        return (
           <button
-            className="secondary py-2 px-4 text-sm"
-            disabled={current === 0}
-            onClick={() => setCurrent((v) => Math.max(0, v - 1))}
-          >
-            ← Назад
-          </button>
-
-          <div className="flex flex-wrap justify-center gap-0.5 max-h-8 overflow-hidden">
-  {questions.map((item, index) => {
-              const ans = answers[item.id];
-              const state = ans === undefined ? "bg-white/20" : isAnswerCorrect(item, ans) ? "bg-emerald-400" : "bg-red-400";
-              return (
+            key={item.id}
+            className={`h-1.5 w-1.5 rounded-full ${state} ${index === current ? "ring-1 ring-white" : ""}`}
+            title={`Питање ${item.id}`}
+            onClick={() => setCurrent(index)}
+          />
+        );
+      })}
+    </div>
+    {/* Nazad / Napred dugmad */}
+    <div className="flex items-center justify-between gap-2">
       <button
-        key={item.id}
-        className={`h-2 w-2 md:h-4 md:w-4 rounded ...`}
-                  title={`Питање ${item.id}`}
-                  onClick={() => setCurrent(index)}
-                />
-              );
-            })}
-          </div>
+        className="secondary py-1.5 px-3 text-xs"
+        disabled={current === 0}
+        onClick={() => setCurrent((v) => Math.max(0, v - 1))}
+      >
+        ← Назад
+      </button>
+      {current < questions.length - 1 ? (
+        <button className="primary py-1.5 px-3 text-xs" onClick={() => setCurrent((v) => Math.min(questions.length - 1, v + 1))}>
+          Напред →
+        </button>
+      ) : (
+        <button className="primary py-1.5 px-3 text-xs" onClick={submit}>
+          Заврши ({answeredCount}/{questions.length})
+        </button>
+      )}
+    </div>
+  </div>
+</div>
 
           {current < questions.length - 1 ? (
             <button className="primary py-2 px-4 text-sm" onClick={() => setCurrent((v) => Math.min(questions.length - 1, v + 1))}>
