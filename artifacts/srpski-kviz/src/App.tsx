@@ -897,37 +897,33 @@ function QuizPage() {
   const progress = Math.round((answeredCount / Math.max(questions.length, 1)) * 100);
 
   return (
-    <section className="mx-auto max-w-5xl pb-24">
-      {/* Row 1: question info */}
-      <p className="mb-1 text-xs text-blue-300 leading-tight">
-        <span className="font-bold text-white">Питање {current + 1}/{questions.length}</span>
-        {subjectLabel && <span className="ml-1.5 text-blue-400">— {subjectLabel}</span>}
-      </p>
-
-      {/* Row 2: action buttons */}
-      <div className="mb-2 flex gap-1.5">
+    <section className="mx-auto max-w-5xl pb-16">
+      {/* Single compact top row: info + buttons + progress all in one tight strip */}
+      <div className="mb-1.5 flex items-center gap-1.5">
+        <span className="text-[11px] font-bold text-white whitespace-nowrap">
+          {current + 1}/{questions.length}
+          {subjectLabel && <span className="ml-1 font-normal text-blue-400">— {subjectLabel}</span>}
+        </span>
+        <div className="flex-1 h-0.5 overflow-hidden rounded-full bg-white/15 mx-1">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-sky-300 to-emerald-300 transition-all"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
         {subjectKey && (
           <button
-            className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-bold text-blue-200 hover:bg-white/10 transition"
+            className="rounded border border-white/15 bg-white/5 px-1.5 py-0.5 text-[10px] font-bold text-blue-300 hover:bg-white/10 transition"
             onClick={() => navigate("/dashboard")}
           >
             Dashboard
           </button>
         )}
         <button
-          className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-bold text-blue-200 hover:bg-white/10 transition"
+          className="rounded border border-white/15 bg-white/5 px-1.5 py-0.5 text-[10px] font-bold text-blue-300 hover:bg-white/10 transition"
           onClick={restart}
         >
-          Из почетка
+          ↺
         </button>
-      </div>
-
-      {/* Progress bar — slim */}
-      <div className="mb-3 h-1 overflow-hidden rounded-full bg-white/15">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-sky-300 to-emerald-300 transition-all"
-          style={{ width: `${progress}%` }}
-        />
       </div>
 
       {/* Question card */}
