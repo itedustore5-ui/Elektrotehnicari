@@ -595,7 +595,6 @@ function FillUI({ question, locked, onCommit, onRegisterConfirm }: {
     </div>
   );
 }
-
 function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
   question: Question;
   locked: string | undefined;
