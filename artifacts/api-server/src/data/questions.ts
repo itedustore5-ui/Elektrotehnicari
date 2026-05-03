@@ -1491,7 +1491,7 @@ export const questions: QuizQuestion[] = [
 },
 {
   id: 131, type: "fill", subject: "os", points: 1,
-  imageQuestion: true,
+  imageQuestion:  "/images/131.jpg",
   question: "На лаптопу је прилагођен план напајања 'U_pokretu'. Корисник захтева да ништа не реагује кад затвори лаптоп. На слици Power Options опција коју треба подесити је ___________________________.",
  correctText: "When I close the lid",
   explanation: "Опција 'When I close the lid' у Power Options подешава понашање при затварању поклопца лаптопа.",
@@ -1542,18 +1542,21 @@ export const questions: QuizQuestion[] = [
 },
 {
   id: 139, type: "fill", subject: "os", points: 3,
-  imageQuestion: true,
+  imageQuestion:  "/images/139.jpg",
   question: "На рачунар прикључени су дискови и креирани волумени [слика Disk Management]. Капацитет волумена P видљив кориснику је: ________ GB.",
  correctText: "6",
   explanation: "На слици Disk Management волумен P приказује 6 GB корисног простора.",
 },
   {
-    id: 140, type: "fill", subject: "os", points: 3,
-    imageQuestion: true,
-    question: "На слици је дат дијаграм стања процеса. На линијама напиши одговарајуће називе стања процеса.",
-    items: ["Стање 1", "Стање 2", "Стање 3", "Стање 4", "Стање 5"],
-    correctAnswer: ["Нови", "Спреман", "Извршавање", "Блокиран", "Завршен"],
-    explanation: "Стандардни дијаграм стања процеса: Нови → Спреман → Извршавање ↔ Блокиран → Завршен.",
+  id: 140,   type: "slot",   subject: "os",   points: 3,
+  imageQuestion: "/images/140.jpg",  
+  question: "На слици је дат дијаграм стања процеса. На линијама напиши одговарајуће називе стања процеса.",
+  slots: ["Лево (1)", "Средина доле (2)", "Десно доле (3)", "Крајње десно (4)"],
+  slotOptions: [1, 2, 3, 4, 5],
+  slotMulti: false,
+  // opcije kao stringovi
+  correctSlotAnswers: [["NEW"], ["READY"], ["WAITING"], ["TERMINATED"]],
+  explanation: "Стања процеса: NEW→READY→RUN→WAITING→READY (петља) и RUN→TERMINATED."
   },
 
   // Match / Order (141–151)
