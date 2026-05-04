@@ -159,14 +159,23 @@ router.post("/attempts", requireAuth, async (req, res) => {
   const body = req.body as { answers: { questionId: number; answer: string }[] };
   const answerMap = new Map(body.answers.map((a) => [a.questionId, a.answer]));
 
-  const score = questions.reduce((total, question) => {
+ const attemptedIds = new Set(body.answers.map((a) => a.questionId));
+
+  const matchedSubject = SUBJECTS.find((s) =>
+    [...attemptedIds].every((id) => id >= s.min && id <= s.max)
+  );
+
+  const relevantQuestions = matchedSubject
+    ? questions.filter((q) => q.id >= matchedSubject.min && q.id <= matchedSubject.max)
+    : questions;
+
+  const score = relevantQuestions.reduce((acc, question) => {
     const answer = answerMap.get(question.id);
-    if (answer === undefined) return total;
-    return total + (scoreAnswer(question, answer) ? 1 : 0);
+    if (answer === undefined) return acc;
+    return acc + (scoreAnswer(question, answer) ? 1 : 0);
   }, 0);
-  const total = questions.length;
+  const total = relevantQuestions.length;
   const percentage = percent(score, total);
-  const passed = percentage >= 60;
 
   const [attempt] = await db
     .insert(quizAttempts)
