@@ -1531,7 +1531,7 @@ export const questions: QuizQuestion[] = [
 {
   id: 137, type: "fill", subject: "os", points: 2,
   question: "Уређај из прве групе (pin 1,2 = слање; pin 3,6 = пријем) и уређај из друге групе (pin 1,2 = пријем; pin 3,6 = слање) повезати UTP _______________ каблом.",
- correctText: "прекосни (crossover)",
+ correctText: "crossover",
   explanation: "Crossover (прекосни) кабл укршта пинове за слање/пријем и директно повезује уређаје исте врсте.",
 },
 {
@@ -1555,7 +1555,7 @@ export const questions: QuizQuestion[] = [
   question: "На слици је дат дијаграм стања процеса. На линијама напиши одговарајуће називе стања процеса (лево, средина доле, десно доле, крајње десно).",
   imageQuestion: "/images/140.jpg",
   items: ["Лево", "Средина доле", "Десно доле", "Крајње десно"],
-  correctText: "new|ready|waiting|terminated",
+  correctText:  ["new", "ready", "waiting", "terminated"],",
   explanation: "NEW→READY→RUN→WAITING→READY (петља), RUN→TERMINATED.",
 },
 
