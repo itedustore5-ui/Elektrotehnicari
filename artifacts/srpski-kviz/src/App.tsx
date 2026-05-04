@@ -377,7 +377,7 @@ function Dashboard({ user }: { user: AuthUser }) {
         <div className="card">
           <h3 className="text-xl md:text-2xl font-black">Квиз — сва питања</h3>
           <p className="mt-2 text-sm md:text-base text-blue-100">
-            Граница за пролаз је 60%. Можете се враћати на претходна питања, али већ одговорена питања остају закључана.
+            Можете се враћати на претходна питања, али већ одговорена питања остају закључана у овој сесији — након поновног учитавања страnice све креће испочетка. Свако питање носи одређени број поена, а укупан резултат се рачуна на крају квиза.
           </p>
           {stats?.canTakeQuiz ? (
             <button className="primary mt-4 md:mt-6 w-full md:w-auto" onClick={() => navigate("/quiz")}>
