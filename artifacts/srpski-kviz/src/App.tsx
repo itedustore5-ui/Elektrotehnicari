@@ -900,8 +900,6 @@ function QuizPage() {
   const locked = answers[question.id];
   const progress = Math.round((answeredCount / Math.max(questions.length, 1)) * 100);
 
-  const [zoomedImg, setZoomedImg] = useState<string | null>(null);
-
   return (
     <section className="mx-auto max-w-5xl pb-16">
       {/* Single compact top row */}
@@ -951,16 +949,12 @@ function QuizPage() {
         </div>
 
         {question.imageQuestion && (
-          <>
-            <img
-              src={question.imageQuestion}
-              alt={`Питање ${question.id}`}
-              className="mb-2 md:mb-4 max-h-32 md:max-h-80 w-full rounded-2xl md:rounded-3xl border border-white/10 object-contain cursor-zoom-in active:opacity-80 transition"
-              onClick={() => setZoomedImg(question.imageQuestion!)}
-              onError={(e) => { e.currentTarget.style.display = "none"; }}
-            />
-            <p className="text-[10px] text-blue-400 -mt-1 mb-2 text-center md:hidden">👆 Кликни за увећање</p>
-          </>
+          <img
+            src={question.imageQuestion}
+            alt={`Питање ${question.id}`}
+            className="mb-2 md:mb-4 max-h-32 md:max-h-80 w-full rounded-2xl md:rounded-3xl border border-white/10 object-contain"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+          />
         )}
 
         <h3 className="text-sm font-bold leading-snug md:text-2xl md:font-black">{question.question}</h3>
@@ -1073,29 +1067,6 @@ function QuizPage() {
 
         </div>
       </div>
-
-      {/* Fullscreen image overlay — pinch zoom on mobile */}
-      {zoomedImg && (
-        <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
-          onClick={() => setZoomedImg(null)}
-        >
-          <img
-            src={zoomedImg}
-            alt="Увећана слика"
-            className="max-w-full max-h-full object-contain"
-            style={{ touchAction: "pinch-zoom" }}
-            onClick={(e) => e.stopPropagation()}
-          />
-          <button
-            className="absolute top-4 right-4 rounded-full bg-white/10 border border-white/20 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20 transition"
-            onClick={() => setZoomedImg(null)}
-          >
-            ✕ Затвори
-          </button>
-          <p className="absolute bottom-6 text-xs text-white/40">Pinch за зум · Кликни за затварање</p>
-        </div>
-      )}
     </section>
   );
 }
