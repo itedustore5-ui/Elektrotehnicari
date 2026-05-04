@@ -286,8 +286,8 @@ function Login({ onLogin }: { onLogin: (user: AuthUser) => void }) {
       <div className="grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 shadow-2xl backdrop-blur md:grid-cols-[1.1fr_0.9fr]">
         <div className="p-8 md:p-12">
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.35em] text-blue-200">Припрема</p>
-          <h1 className="text-4xl font-black leading-tight md:text-6xl">Припрема за матурски испит.</h1>
-          <p className="mt-6 max-w-xl text-lg text-blue-100">Једно питање поједно, objašnjenje после сваког одговора, јасан напредак.</p>
+          <h1 className="text-4xl font-black leading-tight md:text-6xl">За матурски испит.</h1>
+          <p className="mt-6 max-w-xl text-lg text-blue-100">Једно питање по једно, објашњење после сваког одговора, јасан напредак.</p>
         </div>
         <form onSubmit={submit} className="bg-slate-950/45 p-8 md:p-12">
           <h2 className="text-2xl font-black">Пријава</h2>
