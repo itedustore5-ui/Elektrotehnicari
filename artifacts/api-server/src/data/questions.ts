@@ -1548,14 +1548,11 @@ export const questions: QuizQuestion[] = [
   explanation: "На слици Disk Management волумен P приказује 6 GB корисног простора.",
 },
   {
-  id: 140,
-  type: "fill",
-  subject: "os",
-  points: 3,
+  id: 140,   type: "fill",   subject: "os",   points: 3,
   question: "На слици је дат дијаграм стања процеса. На линијама напиши одговарајуће називе стања процеса (лево, средина доле, десно доле, крајње десно).",
   imageQuestion: "/images/140.jpg",
   items: ["Лево", "Средина доле", "Десно доле", "Крајње десно"],
-  correctText:  ["new", "ready", "waiting", "terminated"],
+  correctText:  ["new|ready|waiting|terminated"],
   explanation: "NEW→READY→RUN→WAITING→READY (петља), RUN→TERMINATED.",
 },
 
