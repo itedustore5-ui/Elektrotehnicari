@@ -27,7 +27,7 @@ type Question = {
   options?: string[];
   correctAnswer?: number;
   correctAnswers?: number[];
-  correctText?: string;
+  correctText?: string | string[];
   hint?: string;
   leftItems?: string[];
   rightItems?: string[];
@@ -57,7 +57,6 @@ type DashboardStats = {
   lockReason: string | null;
   subjectScores: SubjectScore[];
 };
-
 type ScoreboardEntry = {
   rank: number;
   username: string;
@@ -66,7 +65,6 @@ type ScoreboardEntry = {
   attemptsCount: number;
   lastScore: number | null;
 };
-
 type AdminResult = {
   id: number;
   username: string;
@@ -142,10 +140,9 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
       return sel.length === exp.length && sel.every((v, i) => v === exp[i]);
     }
     if (question.type === "fill") {
-      if (question.items && question.items.length > 0) {
+      if (Array.isArray(question.correctText)) {
         const parts = answer.split("|").map((s) => s.trim().toLowerCase());
-        const correct = (question.correctText ?? "").split("|").map((s) => s.trim().toLowerCase());
-        return parts.length === correct.length && parts.every((v, i) => v === correct[i]);
+        return question.correctText.every((c, i) => c.trim().toLowerCase() === (parts[i] ?? ""));
       }
       return answer.trim().toLowerCase() === (question.correctText ?? "").trim().toLowerCase();
     }
@@ -286,8 +283,8 @@ function Login({ onLogin }: { onLogin: (user: AuthUser) => void }) {
       <div className="grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 shadow-2xl backdrop-blur md:grid-cols-[1.1fr_0.9fr]">
         <div className="p-8 md:p-12">
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.35em] text-blue-200">Припрема</p>
-          <h1 className="text-4xl font-black leading-tight md:text-6xl">За матурски испит.</h1>
-          <p className="mt-6 max-w-xl text-lg text-blue-100">Једно питање по једно, објашњење после сваког одговора, јасан напредак.</p>
+          <h1 className="text-4xl font-black leading-tight md:text-6xl">Припрема за матурски испит.</h1>
+          <p className="mt-6 max-w-xl text-lg text-blue-100">Једно питање поједно, objašnjenje после сваког одговора, јасан напредак.</p>
         </div>
         <form onSubmit={submit} className="bg-slate-950/45 p-8 md:p-12">
           <h2 className="text-2xl font-black">Пријава</h2>
@@ -377,7 +374,7 @@ function Dashboard({ user }: { user: AuthUser }) {
         <div className="card">
           <h3 className="text-xl md:text-2xl font-black">Квиз — сва питања</h3>
           <p className="mt-2 text-sm md:text-base text-blue-100">
-            Можете се враћати на претходна питања, али већ одговорена питања остају закључана у овој сесији — након поновног учитавања страnice све креће испочетка. Свако питање носи одређени број поена, а укупан резултат се рачуна на крају квиза.
+            Граница за пролаз је 60%. Можете се враћати на претходна питања, али већ одговорена питања остају закључана.
           </p>
           {stats?.canTakeQuiz ? (
             <button className="primary mt-4 md:mt-6 w-full md:w-auto" onClick={() => navigate("/quiz")}>
@@ -417,18 +414,17 @@ function SingleUI({ question, shuffleMap, locked, onCommit }: {
   const displayOptions = sm.map((origIdx) => (question.options ?? [])[origIdx]);
 
   return (
-    <div className="mt-2 grid gap-1.5">
+    <div className="mt-4 grid gap-2 md:gap-3">
       {displayOptions.map((option, si) => {
         const origIdx = sm[si];
         const isSelected = locked !== undefined && Number(locked) === origIdx;
         const isCorrect = origIdx === question.correctAnswer;
-        let cls = "answer-compact text-left";
+        let cls = "answer text-sm md:text-base";
         if (locked !== undefined && isCorrect) cls += " correct";
         if (locked !== undefined && isSelected && !isCorrect) cls += " wrong";
         return (
           <button key={si} className={cls} disabled={locked !== undefined} onClick={() => onCommit(String(origIdx))}>
-            <span className="shrink-0 w-5 h-5 rounded-full border-2 border-current opacity-60 flex items-center justify-center text-[10px] font-black">{si + 1}</span>
-            <span className="flex-1 text-left">{option}</span>
+            {si + 1}. {option}
           </button>
         );
       })}
@@ -464,26 +460,27 @@ function MultiUI({ question, shuffleMap, locked, onCommit, onRegisterConfirm }: 
   const lockedOrigIndices = locked !== undefined ? locked.split(",").map(Number) : null;
 
   return (
-    <div className="mt-2 grid gap-1.5">
-      <p className="text-xs text-blue-300 -mb-0.5">Изаберите све тачне одговоре:</p>
+    <div className="mt-4 grid gap-2 md:gap-3">
+      <p className="text-sm text-blue-200 -mb-1">Изаберите све тачне одговоре:</p>
       {displayOptions.map((option, si) => {
         const origIdx = sm[si];
         const isSelectedNow = sel.has(si);
         const isLockedSelected = lockedOrigIndices?.includes(origIdx) ?? false;
         const isCorrect = (question.correctAnswers ?? []).includes(origIdx);
-        let cls = "answer-compact text-left";
+        let cls = "answer text-left flex items-start gap-3 text-sm md:text-base";
         if (locked !== undefined && isCorrect) cls += " correct";
         else if (locked !== undefined && isLockedSelected && !isCorrect) cls += " wrong";
         else if (locked === undefined && isSelectedNow) cls += " selected";
         return (
           <button key={si} className={cls} disabled={locked !== undefined} onClick={() => toggle(si)}>
-            <span className={`shrink-0 h-4 w-4 rounded border-2 flex items-center justify-center ${isSelectedNow || (locked !== undefined && isLockedSelected) ? "border-white bg-white/30" : "border-white/40"}`}>
-              {(isSelectedNow || (locked !== undefined && isLockedSelected)) && <span className="block h-2 w-2 rounded-sm bg-white" />}
+            <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 ${isSelectedNow || (locked !== undefined && isLockedSelected) ? "border-white bg-white/30" : "border-white/40"}`}>
+              {(isSelectedNow || (locked !== undefined && isLockedSelected)) && <span className="block h-2.5 w-2.5 rounded-sm bg-white" />}
             </span>
-            <span className="flex-1 text-left">{option}</span>
+            {si + 1}. {option}
           </button>
         );
       })}
+      {/* Potvrdi is in the bottom bar — no duplicate here */}
     </div>
   );
 }
@@ -494,75 +491,25 @@ function FillUI({ question, locked, onCommit, onRegisterConfirm }: {
   onCommit: (answer: string) => void;
   onRegisterConfirm?: (fn: () => void) => void;
 }) {
-  const items = question.items ?? [];
-  const isMulti = items.length > 0;
   const [text, setText] = useState("");
-  const [multiText, setMultiText] = useState<string[]>([]);
-
-  useEffect(() => { setText(""); setMultiText([]); }, [question.id]);
-  useEffect(() => {
-    if (isMulti) {
-      onRegisterConfirm?.(commitMulti);
-    } else {
-      onRegisterConfirm?.(commitSingle);
-    }
-  }, [text, multiText, question.id, isMulti]);
-
-  const commitSingle = () => { if (text.trim()) onCommit(text.trim()); };
-  const commitMulti = () => {
-    if (multiText.every((t) => t.trim())) onCommit(multiText.map((t) => t.trim()).join("|"));
-  };
-
-  const lockedParts = locked?.split("|") ?? [];
-  const correctParts = (question.correctText ?? "").split("|");
-  const isMultiCorrect = (i: number) =>
-    lockedParts[i]?.trim().toLowerCase() === correctParts[i]?.trim().toLowerCase();
-  const allFilled = multiText.length === items.length && multiText.every((t) => t.trim().length > 0);
-
-  if (isMulti) {
-    return (
-      <div className="mt-2 grid gap-2">
-        {question.hint && <p className="text-xs italic text-blue-300">Напомена: {question.hint}</p>}
-        {items.map((item, i) => {
-          const isCorrect = locked !== undefined && isMultiCorrect(i);
-          const isWrong = locked !== undefined && !isMultiCorrect(i);
-          return (
-            <div key={i} className={`rounded-xl border p-2 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
-              <p className="text-xs font-bold text-blue-200 mb-1">{item}</p>
-              <input
-                className="input text-xs py-1"
-                placeholder="Упишите одговор..."
-                value={locked !== undefined ? (lockedParts[i] ?? "") : (multiText[i] ?? "")}
-                disabled={locked !== undefined}
-                onChange={(e) => {
-                  const next = [...multiText];
-                  next[i] = e.target.value;
-                  setMultiText(next);
-                }}
-                onKeyDown={(e) => { if (e.key === "Enter" && allFilled) commitMulti(); }}
-              />
-              {isWrong && <p className="mt-1 text-[10px] text-red-300">тачно: {correctParts[i]}</p>}
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
+  useEffect(() => { setText(""); }, [question.id]);
+  const commit = () => { if (text.trim()) onCommit(text.trim()); };
+  useEffect(() => { onRegisterConfirm?.(commit); }, [text, question.id]);
 
   return (
-    <div className="mt-2">
-      {question.hint && <p className="mb-2 text-xs italic text-blue-300">Напомена: {question.hint}</p>}
+    <div className="mt-4">
+      {question.hint && <p className="mb-3 text-sm italic text-blue-300">Напомена: {question.hint}</p>}
       <input
-        className="input text-sm"
+        className="input text-base md:text-xl"
         placeholder="Упишите одговор..."
         value={locked !== undefined ? locked : text}
         disabled={locked !== undefined}
         onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter") commitSingle(); }}
+        onKeyDown={(e) => { if (e.key === "Enter") commit(); }}
       />
       {locked !== undefined && (
-        <p className={`mt-2 font-black text-xs ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
-          {isAnswerCorrect(question, locked) ? "✓ Тачно" : `✗ Нетачно — тачан одговор: ${question.correctText}`}
+        <p className={`mt-3 font-black text-sm md:text-base ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
+          {isAnswerCorrect(question, locked) ? "Тачно" : `Нетачно — тачан одговор: ${Array.isArray(question.correctText) ? question.correctText.join(", ") : question.correctText}`}
         </p>
       )}
     </div>
@@ -618,35 +565,37 @@ function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
     onCommit(answer);
   };
 
+  const allPaired = Object.keys(locked !== undefined ? lockedPairs : pairs).length >= left.length;
+
   return (
-    <div className="mt-3">
-      <p className="mb-2 text-xs text-blue-300">Кликните лево, затим десно:</p>
-      <div className="grid grid-cols-2 gap-1.5">
-        <div className="grid gap-1.5">
+    <div className="mt-4">
+      <p className="mb-3 text-sm text-blue-200">Кликните на ставку лево, затим на одговарајућу ставку десно:</p>
+      <div className="grid grid-cols-2 gap-2 md:gap-4">
+        <div className="grid gap-2">
           {left.map((item, li) => {
             const paired = locked !== undefined ? lockedPairs[li] : pairs[li];
             const isActive = selectedLeft === li;
             const isCorrect = locked !== undefined && (question.correctPairs ?? [])[li] === lockedPairs[li];
             const isWrong = locked !== undefined && (question.correctPairs ?? [])[li] !== lockedPairs[li];
-            let cls = "answer-compact text-left text-[11px] leading-tight";
+            let cls = "answer text-left text-xs md:text-sm cursor-pointer";
             if (isActive) cls += " ring-2 ring-white";
             if (isCorrect) cls += " correct";
             else if (isWrong) cls += " wrong";
             else if (paired !== undefined) cls += " bg-white/20";
             return (
               <button key={li} className={cls} onClick={() => clickLeft(li)} disabled={locked !== undefined}>
-                <span className="flex-1">{item}</span>
-                {paired !== undefined && <span className="opacity-50 text-[10px] ml-1">→{right[paired]?.slice(0, 8)}</span>}
+                {item}
+                {paired !== undefined && <span className="ml-1 opacity-60 text-xs">→ {right[paired]}</span>}
               </button>
             );
           })}
         </div>
-        <div className="grid gap-1.5 content-start">
+        <div className="grid gap-2 content-start">
           {right.map((item, ri) => {
             const usedByLeft = locked !== undefined
               ? Object.entries(lockedPairs).find(([, v]) => v === ri)?.[0]
               : Object.entries(pairs).find(([, v]) => v === ri)?.[0];
-            let cls = "answer-compact text-left text-[11px] leading-tight";
+            let cls = "answer text-left text-xs md:text-sm cursor-pointer";
             if (locked !== undefined) {
               const li = usedByLeft !== undefined ? Number(usedByLeft) : -1;
               if (li >= 0) {
@@ -663,8 +612,8 @@ function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
             );
           })}
           {locked !== undefined && (
-            <div className="mt-1 text-[10px] text-blue-200 space-y-0.5">
-              <p className="font-black text-xs">Тачни парови:</p>
+            <div className="mt-2 text-xs md:text-sm text-blue-200">
+              <p className="font-black">Тачни парови:</p>
               {left.map((lItem, li) => (
                 <p key={li}>{lItem} → {right[(question.correctPairs ?? [])[li]]}</p>
               ))}
@@ -672,6 +621,7 @@ function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
           )}
         </div>
       </div>
+      {/* Potvrdi is in the bottom bar */}
     </div>
   );
 }
@@ -694,6 +644,8 @@ function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
     return Object.fromEntries(locked.split(",").map((v, i) => [i, Number(v)]));
   }, [locked, positions]);
 
+  const allFilled = items.every((_, i) => (locked !== undefined ? lockedPositions[i] : positions[i]) !== undefined);
+
   const commit = () => {
     const answer = items.map((_, i) => positions[i] ?? 0).join(",");
     onCommit(answer);
@@ -704,9 +656,9 @@ function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
     : Array.from({ length: maxPos }, (_, i) => i + 1);
 
   return (
-    <div className="mt-2 grid gap-1.5">
-      <p className="text-xs text-blue-300 -mb-0.5">
-        {hasSkips ? "Додели редни број (1,2,3…) или X за акције које не треба предузети:" : "Додели редни број (1 = прво):"}
+    <div className="mt-4 grid gap-2 md:gap-3">
+      <p className="text-sm text-blue-200 -mb-1">
+        {hasSkips ? "Додели редни број (1, 2, 3...) или X (нула) за акције које не треба предузети:" : "Додели редни број свакој ставци (1 = прво):"}
       </p>
       {items.map((item, i) => {
         const pos = locked !== undefined ? lockedPositions[i] : positions[i];
@@ -714,9 +666,9 @@ function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
         const isCorrect = locked !== undefined && pos === correctPos;
         const isWrong = locked !== undefined && pos !== correctPos;
         return (
-          <div key={i} className={`flex items-center gap-2 rounded-xl border px-2 py-1.5 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
+          <div key={i} className={`flex items-center gap-2 md:gap-3 rounded-2xl border p-2 md:p-3 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
             <select
-              className="rounded-lg border border-white/20 bg-slate-800 px-1.5 py-1 text-white text-xs shrink-0"
+              className="rounded-xl border border-white/20 bg-slate-800 px-2 py-1.5 md:px-3 md:py-2 text-white text-sm"
               value={pos ?? ""}
               disabled={locked !== undefined}
               onChange={(e) => setPositions((prev) => ({ ...prev, [i]: Number(e.target.value) }))}
@@ -726,11 +678,12 @@ function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
                 <option key={v} value={v}>{v === 0 ? "X" : v}</option>
               ))}
             </select>
-            <span className="flex-1 text-xs leading-snug">{item}</span>
-            {isWrong && <span className="text-[10px] text-red-300 shrink-0">→{correctPos === 0 ? "X" : correctPos}</span>}
+            <span className="flex-1 text-xs md:text-sm">{item}</span>
+            {isWrong && <span className="text-xs text-red-300">тачно: {correctPos === 0 ? "X" : correctPos}</span>}
           </div>
         );
       })}
+      {/* Potvrdi is in the bottom bar */}
     </div>
   );
 }
@@ -757,6 +710,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
     return Object.fromEntries(locked.split(",").map((v, i) => [i, Number(v)]));
   }, [locked, selections, isMulti]);
 
+  const dropdownAllFilled = slots.every((_, i) => selections[i] !== undefined);
   const commitDropdown = () => onCommit(slots.map((_, i) => selections[i]).join(","));
 
   const lockedMultiSlots = locked?.split("|") ?? [];
@@ -770,6 +724,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
       return next;
     });
   };
+  const multiAllFilled = slots.every((_, i) => (multiSelections[i]?.size ?? 0) > 0);
   const commitMulti = () => {
     const answer = slots.map((_, i) =>
       [...(multiSelections[i] ?? [])].sort((a, b) => a - b).join(",")
@@ -781,8 +736,8 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
 
   if (isMulti) {
     return (
-      <div className="mt-2 grid gap-2">
-        <p className="text-xs text-blue-300 -mb-0.5">Означите бројеве за сваки тип:</p>
+      <div className="mt-4 grid gap-3">
+        <p className="text-sm text-blue-200 -mb-1">Означите бројеве за сваки тип:</p>
         {slots.map((slot, i) => {
           const selectedVals = locked !== undefined
             ? new Set(lockedMultiSlots[i]?.split(",").map(Number).filter(Boolean) ?? [])
@@ -793,9 +748,9 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
             selectedVals.size === correctVals.size;
           const isWrong = locked !== undefined && !isCorrect;
           return (
-            <div key={i} className={`rounded-xl border p-2 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
-              <p className="text-xs font-bold text-blue-200 mb-1.5">{slot}</p>
-              <div className="flex flex-wrap gap-1.5">
+            <div key={i} className={`rounded-2xl border p-3 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
+              <p className="text-xs md:text-sm font-bold text-blue-200 mb-2">{slot}</p>
+              <div className="flex flex-wrap gap-2">
                 {options.map((opt) => {
                   const isSelected = selectedVals.has(opt);
                   return (
@@ -803,7 +758,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
                       key={opt}
                       disabled={locked !== undefined}
                       onClick={() => toggleMulti(i, opt)}
-                      className={`rounded-lg border px-2.5 py-1 text-xs font-bold transition ${
+                      className={`rounded-xl border px-3 py-1.5 text-sm font-bold transition ${
                         isSelected ? "border-white bg-white/25 text-white" : "border-white/20 bg-white/5 text-blue-200"
                       }`}
                     >
@@ -812,26 +767,27 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
                   );
                 })}
               </div>
-              {isWrong && <p className="mt-1 text-[10px] text-red-300">тачно: {correctAns[i]?.[0]}</p>}
+              {isWrong && <p className="mt-2 text-xs text-red-300">тачно: {correctAns[i]?.[0]}</p>}
             </div>
           );
         })}
+        {/* Potvrdi is in the bottom bar */}
       </div>
     );
   }
 
   return (
-    <div className="mt-2 grid gap-1.5">
-      <p className="text-xs text-blue-300 -mb-0.5">Изаберите редни број модула за сваки слот:</p>
+    <div className="mt-4 grid gap-2 md:gap-3">
+      <p className="text-sm text-blue-200 -mb-1">Изаберите редни број модула за сваки слот:</p>
       {slots.map((slot, i) => {
         const val = locked !== undefined ? lockedSelections[i] : selections[i];
         const isCorrect = locked !== undefined && correctAns.some((ca) => Number(ca[i]) === val);
         const isWrong = locked !== undefined && !isCorrect;
         return (
-          <div key={i} className={`flex items-center gap-2 rounded-xl border px-2 py-1.5 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
-            <span className="w-16 shrink-0 text-xs font-bold text-blue-200 leading-snug">{slot}</span>
+          <div key={i} className={`flex items-center gap-3 rounded-2xl border p-2 md:p-3 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
+            <span className="w-20 shrink-0 text-xs md:text-sm font-bold text-blue-200">{slot}</span>
             <select
-              className="rounded-lg border border-white/20 bg-slate-800 px-1.5 py-1 text-white text-xs"
+              className="rounded-xl border border-white/20 bg-slate-800 px-2 py-1.5 text-white text-sm"
               value={val ?? ""}
               disabled={locked !== undefined}
               onChange={(e) => setSelections((prev) => ({ ...prev, [i]: Number(e.target.value) }))}
@@ -841,10 +797,11 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
                 <option key={opt} value={opt}>{opt}</option>
               ))}
             </select>
-            {isWrong && <span className="text-[10px] text-red-300">→{correctAns[0]?.[i]}</span>}
+            {isWrong && <span className="text-xs text-red-300">тачно: {correctAns[0]?.[i]}</span>}
           </div>
         );
       })}
+      {/* Potvrdi is in the bottom bar */}
     </div>
   );
 }
@@ -886,7 +843,9 @@ function QuizPage() {
       .catch((err) => setError(err.message));
   };
 
-  useEffect(() => { loadQuestions(subjectKey); }, [subjectKey]);
+  useEffect(() => {
+    loadQuestions(subjectKey);
+  }, [subjectKey]);
 
   const commit = (answer: string) => {
     if (!question || answers[question.id] !== undefined) return;
@@ -918,7 +877,8 @@ function QuizPage() {
       <div className="mx-auto max-w-3xl card text-center">
         <p className="text-blue-200">{subjectLabel ? `Квиз — ${subjectLabel}` : "Квиз је завршен"}</p>
         <h2 className="mt-2 text-5xl md:text-6xl font-black">{result.percentage}%</h2>
-               <p className="mt-2 text-blue-100 text-sm md:text-base">Тачно {result.score} од {result.total} питања.</p>
+
+        <p className="mt-2 text-blue-100 text-sm md:text-base">Тачно {result.score} од {result.total} питања.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <button className="secondary" onClick={() => navigate("/dashboard")}>Dashboard</button>
           <button className="secondary" onClick={() => navigate(`/scoreboard${subjectKey ? `?subject=${subjectKey}` : ""}`)}>
@@ -941,8 +901,8 @@ function QuizPage() {
   const progress = Math.round((answeredCount / Math.max(questions.length, 1)) * 100);
 
   return (
-    <section className="mx-auto max-w-5xl" style={{ paddingBottom: "80px" }}>
-
+    <section className="mx-auto max-w-5xl pb-16">
+      {/* Single compact top row: info + buttons + progress all in one tight strip */}
       <div className="mb-1.5 flex items-center gap-1.5">
         <span className="text-[11px] font-bold text-white whitespace-nowrap">
           {current + 1}/{questions.length}
@@ -959,7 +919,7 @@ function QuizPage() {
             className="rounded border border-white/15 bg-white/5 px-1.5 py-0.5 text-[10px] font-bold text-blue-300 hover:bg-white/10 transition"
             onClick={() => navigate("/dashboard")}
           >
-            ← назад
+            Dashboard
           </button>
         )}
         <button
@@ -970,35 +930,39 @@ function QuizPage() {
         </button>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/8 shadow-xl backdrop-blur px-3 py-3 md:px-5 md:py-4">
-
-        <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
-          <span className="text-[11px] font-black text-blue-300">#{question.id}</span>
-          <span className="rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[10px] text-blue-300">
+      {/* Question card */}
+      <div className="card p-4 md:p-6">
+        {/* Question meta */}
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <span className="text-xs md:text-sm font-black text-blue-200">#{question.id}</span>
+          <span className="rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-xs text-blue-300">
             {question.type === "single" ? "Један одговор" :
-              question.type === "multi" ? "Вишеструки" :
+              question.type === "multi" ? "Вишеструки одговори" :
               question.type === "fill" ? "Попунити" :
               question.type === "match" ? "Повезивање" :
               question.type === "slot" ? "Слотови" : "Редослед"}
           </span>
           {question.points != null && (
-            <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-2 py-0.5 text-[10px] text-yellow-300 font-bold">
+            <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-2 py-0.5 text-xs text-yellow-300 font-bold">
               {question.points} {question.points === 1 ? "бод" : "бода"}
             </span>
           )}
         </div>
 
+        {/* Question image */}
         {question.imageQuestion && (
           <img
             src={question.imageQuestion}
             alt={`Питање ${question.id}`}
-            className="mb-3 max-h-36 md:max-h-64 w-full rounded-2xl border border-white/10 object-contain"
+            className="mb-4 max-h-48 md:max-h-80 w-full rounded-3xl border border-white/10 object-contain"
             onError={(e) => { e.currentTarget.style.display = "none"; }}
           />
         )}
 
-        <h3 className="text-sm font-bold leading-snug md:text-xl md:font-black">{question.question}</h3>
+        {/* Question text */}
+        <h3 className="text-base font-black leading-relaxed md:text-2xl">{question.question}</h3>
 
+        {/* Answer UIs */}
         {question.type === "single" && (
           <SingleUI question={question} shuffleMap={shuffleMap} locked={locked} onCommit={commit} />
         )}
@@ -1018,36 +982,42 @@ function QuizPage() {
           <SlotUI question={question} locked={locked} onCommit={commit} onRegisterConfirm={(fn) => { confirmRef.current = fn; }} />
         )}
 
-        {locked !== undefined && question.type !== "match" && (
-          <div className="mt-3 rounded-xl border border-white/10 bg-slate-950/35 p-3">
-            <p className={`font-black text-xs ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
-              {isAnswerCorrect(question, locked) ? "✓ Тачно!" : "✗ Нетачно"}
+        {/* Explanation after answer */}
+        {locked !== undefined && question.type !== "fill" && question.type !== "match" && (
+          <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
+            <p className={`font-black text-sm md:text-base ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
+              {isAnswerCorrect(question, locked) ? "Тачно!" : "Нетачно"}
             </p>
-            <p className="mt-1 text-xs text-blue-50 leading-relaxed">{question.explanation}</p>
+            <p className="mt-2 text-sm text-blue-50">{question.explanation}</p>
           </div>
         )}
         {locked !== undefined && question.type === "match" && (
-          <div className="mt-3 rounded-xl border border-white/10 bg-slate-950/35 p-3">
-            <p className="text-xs text-blue-100 leading-relaxed">{question.explanation}</p>
+          <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
+            <p className="text-sm text-blue-100">{question.explanation}</p>
           </div>
         )}
       </div>
 
-      {error && <p className="mt-3 rounded-xl bg-red-500/20 p-3 text-red-100 text-xs">{error}</p>}
+      {/* Error */}
+      {error && <p className="mt-4 rounded-2xl bg-red-500/20 p-4 text-red-100 text-sm">{error}</p>}
 
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-slate-950/90 backdrop-blur-xl px-3 py-2">
-        <div className="mx-auto max-w-5xl flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5">
+      {/* ── Fixed bottom navigation bar ── */}
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-slate-950/85 backdrop-blur-xl px-3 py-1.5 md:px-6">
+        <div className="mx-auto max-w-5xl flex flex-col gap-1">
+
+          {/* Назад / Потврди / Напред */}
+          <div className="flex items-center gap-2">
             <button
-              className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-blue-200 hover:bg-white/10 transition disabled:opacity-30 shrink-0"
+              className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-bold text-blue-200 hover:bg-white/10 transition disabled:opacity-30"
               disabled={current === 0}
               onClick={() => setCurrent((v) => Math.max(0, v - 1))}
             >
-              ←
+              ← Назад
             </button>
 
+            {/* Потврди — uvek vidljiv, disabled kad već odgovoreno */}
             <button
-              className="flex-1 rounded-lg py-2 text-xs font-black transition active:scale-95 disabled:opacity-40"
+              className="flex-1 rounded-lg py-1.5 text-xs font-black transition active:scale-95 disabled:opacity-40"
               style={{
                 background: locked !== undefined
                   ? "rgba(255,255,255,0.07)"
@@ -1058,19 +1028,19 @@ function QuizPage() {
               disabled={locked !== undefined}
               onClick={() => confirmRef.current?.()}
             >
-              {locked !== undefined ? `✓ ${answeredCount}/${questions.length}` : "Потврди одговор"}
+              {locked !== undefined ? `✓ ${answeredCount}/${questions.length} одговорено` : "Потврди одговор"}
             </button>
 
             {current < questions.length - 1 ? (
               <button
-                className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-blue-200 hover:bg-white/10 transition shrink-0"
+                className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-bold text-blue-200 hover:bg-white/10 transition"
                 onClick={() => setCurrent((v) => Math.min(questions.length - 1, v + 1))}
               >
-                →
+                Напред →
               </button>
             ) : (
               <button
-                className="rounded-lg bg-emerald-500/80 border border-emerald-400/30 px-3 py-2 text-xs font-black text-white hover:bg-emerald-500 transition shrink-0"
+                className="rounded-lg bg-emerald-500/80 border border-emerald-400/30 px-3 py-1.5 text-xs font-black text-white hover:bg-emerald-500 transition"
                 onClick={submit}
               >
                 Заврши
@@ -1078,6 +1048,7 @@ function QuizPage() {
             )}
           </div>
 
+          {/* Progress dots */}
           <div className="flex flex-wrap justify-center gap-0.5">
             {questions.map((item, index) => {
               const ans = answers[item.id];
@@ -1097,6 +1068,7 @@ function QuizPage() {
               );
             })}
           </div>
+
         </div>
       </div>
     </section>
