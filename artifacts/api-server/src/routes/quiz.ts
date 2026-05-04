@@ -54,7 +54,6 @@ function scoreAnswer(question: QuizQuestion, answer: string): boolean {
     if (question.type === "slot") {
       const q = question as any;
       if (q.slotMulti) {
-        // multi format: "4|1,2,5|3,6"
         const userSlots = answer.split("|").map((s) => new Set(s.split(",").map(Number).filter(Boolean)));
         const correctSlots = (q.correctSlotAnswers ?? []).map((ca: string[]) =>
           new Set(ca[0].split(",").map(Number).filter(Boolean))
@@ -65,7 +64,6 @@ function scoreAnswer(question: QuizQuestion, answer: string): boolean {
             userSlots[i]?.size === correct.size
         );
       } else {
-        // dropdown format: "5,6,5,6"
         const vals = answer.split(",").map(Number);
         return (q.correctSlotAnswers ?? []).some((ca: string[]) =>
           ca.every((v: string, i: number) => Number(v) === vals[i])
@@ -149,47 +147,53 @@ router.get("/questions", requireAuth, (req, res) => {
 });
 
 router.post("/attempts", requireAuth, async (req, res) => {
-  const user = (req as AuthedRequest).user;
-  const previousAttempts = await attemptsForUser(user.id);
-  if (user.quizOnce && previousAttempts.length > 0) {
-    res.status(403).json({ message: "Искористили сте свој jedini покушај за квиз." });
-    return;
+  try {
+    const user = (req as AuthedRequest).user;
+    const previousAttempts = await attemptsForUser(user.id);
+    if (user.quizOnce && previousAttempts.length > 0) {
+      res.status(403).json({ message: "Искористили сте свој jedini покушај за квиз." });
+      return;
+    }
+
+    const body = req.body as { answers: { questionId: number; answer: string }[] };
+    const answerMap = new Map(body.answers.map((a) => [a.questionId, a.answer]));
+
+    const attemptedIds = new Set(body.answers.map((a) => a.questionId));
+
+    const matchedSubject = SUBJECTS.find((s) =>
+      [...attemptedIds].every((id) => id >= s.min && id <= s.max)
+    );
+
+    const relevantQuestions = matchedSubject
+      ? questions.filter((q) => q.id >= matchedSubject.min && q.id <= matchedSubject.max)
+      : questions;
+
+    const score = relevantQuestions.reduce((acc, question) => {
+      const answer = answerMap.get(question.id);
+      if (answer === undefined) return acc;
+      return acc + (scoreAnswer(question, answer) ? 1 : 0);
+    }, 0);
+    const total = relevantQuestions.length;
+    const percentage = percent(score, total);
+    const passed = percentage >= 60;
+
+    const [attempt] = await db
+      .insert(quizAttempts)
+      .values({ userId: user.id, score, total, percentage, passed, answers: body.answers })
+      .returning();
+
+    res.json({
+      id: attempt.id,
+      score: attempt.score,
+      total: attempt.total,
+      percentage: attempt.percentage,
+      passed: attempt.passed,
+      createdAt: attempt.createdAt.toISOString(),
+    });
+  } catch (err) {
+    console.error("ATTEMPT ERROR:", err);
+    res.status(500).json({ message: String(err) });
   }
-
-  const body = req.body as { answers: { questionId: number; answer: string }[] };
-  const answerMap = new Map(body.answers.map((a) => [a.questionId, a.answer]));
-
- const attemptedIds = new Set(body.answers.map((a) => a.questionId));
-
-  const matchedSubject = SUBJECTS.find((s) =>
-    [...attemptedIds].every((id) => id >= s.min && id <= s.max)
-  );
-
-  const relevantQuestions = matchedSubject
-    ? questions.filter((q) => q.id >= matchedSubject.min && q.id <= matchedSubject.max)
-    : questions;
-
-  const score = relevantQuestions.reduce((acc, question) => {
-    const answer = answerMap.get(question.id);
-    if (answer === undefined) return acc;
-    return acc + (scoreAnswer(question, answer) ? 1 : 0);
-  }, 0);
-  const total = relevantQuestions.length;
-  const percentage = percent(score, total);
-
-  const [attempt] = await db
-    .insert(quizAttempts)
-    .values({ userId: user.id, score, total, percentage, passed, answers: body.answers })
-    .returning();
-
-  res.json({
-    id: attempt.id,
-    score: attempt.score,
-    total: attempt.total,
-    percentage: attempt.percentage,
-    passed: attempt.passed,
-    createdAt: attempt.createdAt.toISOString(),
-  });
 });
 
 router.get("/scoreboard", requireAuth, async (req, res) => {
