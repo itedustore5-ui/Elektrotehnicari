@@ -1505,7 +1505,7 @@ export const questions: QuizQuestion[] = [
 {
   id: 133, type: "fill", subject: "os", points: 1,
   question: "Архитектура ОС-а у kojoj је ОС изграђен od засебних целина (слојева) koji се надограђују назива се _____________________________ архитектура.",
- correctText: "слојевита",
+  correctText: "слојевита",
   explanation: "Слојевита (layered) архитектура ОС-а организује функционалност у хијерархијске слојеве.",
 },
 {
