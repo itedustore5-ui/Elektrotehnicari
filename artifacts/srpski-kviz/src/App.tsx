@@ -247,7 +247,7 @@ function Shell({ user, onLogout, children }: { user: AuthUser; onLogout: () => v
         )}
       </header>
 
-      <main className="mx-auto max-w-7xl px-3 py-4 md:px-4 md:py-8">{children}</main>
+      <main className="mx-auto max-w-7xl px-2 py-2 md:px-4 md:py-8">{children}</main>
     </div>
   );
 }
@@ -414,12 +414,12 @@ function SingleUI({ question, shuffleMap, locked, onCommit }: {
   const displayOptions = sm.map((origIdx) => (question.options ?? [])[origIdx]);
 
   return (
-    <div className="mt-4 grid gap-2 md:gap-3">
+    <div className="mt-2 md:mt-4 grid gap-1.5 md:gap-2">
       {displayOptions.map((option, si) => {
         const origIdx = sm[si];
         const isSelected = locked !== undefined && Number(locked) === origIdx;
         const isCorrect = origIdx === question.correctAnswer;
-        let cls = "answer text-sm md:text-base";
+        let cls = "answer text-xs md:text-sm";
         if (locked !== undefined && isCorrect) cls += " correct";
         if (locked !== undefined && isSelected && !isCorrect) cls += " wrong";
         return (
@@ -460,14 +460,14 @@ function MultiUI({ question, shuffleMap, locked, onCommit, onRegisterConfirm }: 
   const lockedOrigIndices = locked !== undefined ? locked.split(",").map(Number) : null;
 
   return (
-    <div className="mt-4 grid gap-2 md:gap-3">
-      <p className="text-sm text-blue-200 -mb-1">Изаберите све тачне одговоре:</p>
+    <div className="mt-2 md:mt-4 grid gap-1.5 md:gap-2">
+      <p className="text-xs text-blue-200 -mb-0.5">Изаберите све тачне одговоре:</p>
       {displayOptions.map((option, si) => {
         const origIdx = sm[si];
         const isSelectedNow = sel.has(si);
         const isLockedSelected = lockedOrigIndices?.includes(origIdx) ?? false;
         const isCorrect = (question.correctAnswers ?? []).includes(origIdx);
-        let cls = "answer text-left flex items-start gap-3 text-sm md:text-base";
+        let cls = "answer text-left flex items-start gap-2 text-xs md:text-sm";
         if (locked !== undefined && isCorrect) cls += " correct";
         else if (locked !== undefined && isLockedSelected && !isCorrect) cls += " wrong";
         else if (locked === undefined && isSelectedNow) cls += " selected";
@@ -902,8 +902,8 @@ function QuizPage() {
 
   return (
     <section className="mx-auto max-w-5xl pb-16">
-      {/* Single compact top row: info + buttons + progress all in one tight strip */}
-      <div className="mb-1.5 flex items-center gap-1.5">
+      {/* Single compact top row */}
+      <div className="mb-1 flex items-center gap-1.5">
         <span className="text-[11px] font-bold text-white whitespace-nowrap">
           {current + 1}/{questions.length}
           {subjectLabel && <span className="ml-1 font-normal text-blue-400">— {subjectLabel}</span>}
@@ -931,11 +931,10 @@ function QuizPage() {
       </div>
 
       {/* Question card */}
-      <div className="card p-4 md:p-6">
-        {/* Question meta */}
-        <div className="mb-2 flex flex-wrap items-center gap-2">
-          <span className="text-xs md:text-sm font-black text-blue-200">#{question.id}</span>
-          <span className="rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-xs text-blue-300">
+      <div className="card p-3 md:p-6">
+        <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+          <span className="text-[10px] md:text-sm font-black text-blue-200">#{question.id}</span>
+          <span className="rounded-full border border-white/15 bg-white/5 px-1.5 py-0.5 text-[10px] md:text-xs text-blue-300">
             {question.type === "single" ? "Један одговор" :
               question.type === "multi" ? "Вишеструки одговори" :
               question.type === "fill" ? "Попунити" :
@@ -943,24 +942,22 @@ function QuizPage() {
               question.type === "slot" ? "Слотови" : "Редослед"}
           </span>
           {question.points != null && (
-            <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-2 py-0.5 text-xs text-yellow-300 font-bold">
+            <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-1.5 py-0.5 text-[10px] md:text-xs text-yellow-300 font-bold">
               {question.points} {question.points === 1 ? "бод" : "бода"}
             </span>
           )}
         </div>
 
-        {/* Question image */}
         {question.imageQuestion && (
           <img
             src={question.imageQuestion}
             alt={`Питање ${question.id}`}
-            className="mb-4 max-h-48 md:max-h-80 w-full rounded-3xl border border-white/10 object-contain"
+            className="mb-2 md:mb-4 max-h-32 md:max-h-80 w-full rounded-2xl md:rounded-3xl border border-white/10 object-contain"
             onError={(e) => { e.currentTarget.style.display = "none"; }}
           />
         )}
 
-        {/* Question text */}
-        <h3 className="text-base font-black leading-relaxed md:text-2xl">{question.question}</h3>
+        <h3 className="text-sm font-bold leading-snug md:text-2xl md:font-black">{question.question}</h3>
 
         {/* Answer UIs */}
         {question.type === "single" && (
@@ -982,18 +979,17 @@ function QuizPage() {
           <SlotUI question={question} locked={locked} onCommit={commit} onRegisterConfirm={(fn) => { confirmRef.current = fn; }} />
         )}
 
-        {/* Explanation after answer */}
         {locked !== undefined && question.type !== "fill" && question.type !== "match" && (
-          <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
-            <p className={`font-black text-sm md:text-base ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
+          <div className="mt-2 md:mt-4 rounded-xl md:rounded-2xl border border-white/10 bg-slate-950/35 p-2.5 md:p-4">
+            <p className={`font-black text-xs md:text-sm ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
               {isAnswerCorrect(question, locked) ? "Тачно!" : "Нетачно"}
             </p>
-            <p className="mt-2 text-sm text-blue-50">{question.explanation}</p>
+            <p className="mt-1 text-xs md:text-sm text-blue-50">{question.explanation}</p>
           </div>
         )}
         {locked !== undefined && question.type === "match" && (
-          <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
-            <p className="text-sm text-blue-100">{question.explanation}</p>
+          <div className="mt-2 md:mt-4 rounded-xl md:rounded-2xl border border-white/10 bg-slate-950/35 p-2.5 md:p-4">
+            <p className="text-xs md:text-sm text-blue-100">{question.explanation}</p>
           </div>
         )}
       </div>
