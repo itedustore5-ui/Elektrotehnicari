@@ -2271,7 +2271,7 @@ export const questions: QuizQuestion[] = [
       "када се први пут покрене копира све податке. Сваки следећи пут копирају се све промене настале у односу на прву свеобухватну копију",
       "копира све податке са задате локације на задато одредиште",
     ],
-    correctPairs: [1,3,2,0],
+    correctPairs: [3,0,2,1],
     explanation: "Incremental = само промene od задњег; Differential = sve промene od full; Schedule = временски заказано; Full = sve.",
   },
   {
@@ -2289,7 +2289,7 @@ export const questions: QuizQuestion[] = [
       "Потребно је пратити број штампачких послова у временском периоду",
       "Потребна је укупна процена стабилности система",
     ],
-    correctPairs: [3,0,2,1],
+    correctPairs: [1,3,2,0],
     explanation: "/res = Resource Monitor; /rel = Reliability Monitor; /report = детаљни извештај система.",
   },
   {
