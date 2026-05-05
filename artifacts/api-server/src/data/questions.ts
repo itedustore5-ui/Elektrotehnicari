@@ -2830,7 +2830,7 @@ export const questions: QuizQuestion[] = [
       "=SUM(E2:E4)",
       "=SUM(E2;E4)",
     ],
-    correctOrder: ["X","X","Е2","Е4", "Е6"  "Е3"],
+    correctOrder: ["X","X","Е2","Е4", "Е6",  "Е3"],
     explanation: "E2=C2*D2 (цена×количина); E3=B2+D2; E4=C4*D4; E6=SUM(E2:E4).",
   },
   {
