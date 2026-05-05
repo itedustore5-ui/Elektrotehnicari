@@ -340,7 +340,7 @@ function Login({ onLogin }: { onLogin: (user: AuthUser) => void }) {
         </div>
         <form onSubmit={submit} className="bg-slate-950/45 p-8 md:p-12">
           <h2 className="text-2xl font-black">Пријава</h2>
-          <label className="mt-8 block text-sm font-bold text-blue-100">Корисничко ime</label>
+          <label className="mt-8 block text-sm font-bold text-blue-100">Корисничко име</label>
           <input className="input" value={username} autoComplete="username" onChange={(e) => setUsername(e.target.value)} />
           <label className="mt-4 block text-sm font-bold text-blue-100">Лозинка</label>
           <input className="input" type="password" value={password} autoComplete="current-password" onChange={(e) => setPassword(e.target.value)} />
@@ -371,7 +371,7 @@ function SubjectCard({ subject, onClick }: { subject: SubjectScore; onClick?: ()
         <div className={`h-full rounded-full ${color} transition-all`} style={{ width: pct === null ? "0%" : `${pct}%` }} />
       </div>
       {onClick && (
-        <p className="mt-2 text-xs text-blue-300 font-bold">Кликни за вежбање ovog предмета →</p>
+        <p className="mt-2 text-xs text-blue-300 font-bold">Кликни за вежбање овог предмета →</p>
       )}
     </div>
   );
