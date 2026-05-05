@@ -334,8 +334,8 @@ function Login({ onLogin }: { onLogin: (user: AuthUser) => void }) {
       <div className="grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 shadow-2xl backdrop-blur md:grid-cols-[1.1fr_0.9fr]">
         <div className="p-8 md:p-12">
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.35em] text-blue-200">Припрема за</p>
-          <h1 className="text-4xl font-black leading-tight md:text-6xl">матурски испит.</h1>
-          <h1 className="text-4xl font-black leading-tight md:text-6xl">за профил Електротехничар рачунара.</h1>
+          <h1 className="text-4xl font-black leading-tight md:text-6xl">матурски испит</h1>
+          <p className="text-4xl font-black leading-tight md:text-6xl">Електротехничар рачунара.</p>
           <p className="mt-6 max-w-xl text-lg text-blue-100">Садржај је идентичан приручнику ЗУОВ-а.</p>
         </div>
         <form onSubmit={submit} className="bg-slate-950/45 p-8 md:p-12">
