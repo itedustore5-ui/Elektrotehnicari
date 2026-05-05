@@ -242,7 +242,7 @@ function ImageOverlay({ src, alt, onClose }: { src: string; alt: string; onClose
     </p>
   </div>
 );
-
+}
 function Shell({ user, onLogout, children }: { user: AuthUser; onLogout: () => void; children: React.ReactNode }) {
   const [, navigate] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
