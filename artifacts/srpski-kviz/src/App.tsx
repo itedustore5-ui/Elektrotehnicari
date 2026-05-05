@@ -328,7 +328,8 @@ function Login({ onLogin }: { onLogin: (user: AuthUser) => void }) {
         <div className="p-8 md:p-12">
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.35em] text-blue-200">Припрема за</p>
           <h1 className="text-4xl font-black leading-tight md:text-6xl">матурски испит.</h1>
-          <p className="mt-6 max-w-xl text-lg text-blue-100">Једно питање по једно, објашњење после сваког одговора, јасан напредак.</p>
+          <h1 className="text-4xl font-black leading-tight md:text-6xl">за профил Електротехничар рачунара.</h1>
+          <p className="mt-6 max-w-xl text-lg text-blue-100">Садржај је идентичан приручнику ЗУОВ-а.</p>
         </div>
         <form onSubmit={submit} className="bg-slate-950/45 p-8 md:p-12">
           <h2 className="text-2xl font-black">Пријава</h2>
