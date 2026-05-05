@@ -205,43 +205,50 @@ function ImageOverlay({ src, alt, onClose }: { src: string; alt: string; onClose
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    // Omogući zoom na celoj stranici dok je overlay otvoren
+    const viewport = document.querySelector('meta[name="viewport"]');
+    const original = viewport?.getAttribute("content") ?? "";
+    viewport?.setAttribute("content", "width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes");
+    return () => {
+      document.removeEventListener("keydown", handler);
+      viewport?.setAttribute("content", original);
+    };
   }, [onClose]);
 
- return (
-  <div
-    className="fixed inset-0 z-50 bg-black/95"
-    style={{ touchAction: "pinch-zoom", overflow: "hidden" }}
-  >
-    <button
-      className="absolute top-3 right-3 z-10 rounded-full bg-white/10 border border-white/20 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20 transition"
-      onClick={onClose}
-      style={{ touchAction: "manipulation" }}
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/95"
+      style={{ touchAction: "pan-x pan-y pinch-zoom" }}
     >
-      ✕ Затвори
-    </button>
-    <img
-      src={src}
-      alt={alt}
-      style={{
-        touchAction: "pinch-zoom",
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        maxWidth: "100%",
-        maxHeight: "90vh",
-        objectFit: "contain",
-      }}
-    />
-    <p
-      className="absolute bottom-4 left-0 right-0 text-center text-xs text-white/40"
-      onClick={onClose}
-    >
-      Кликни испод слике за затварање · Pinch за зум
-    </p>
-  </div>
-);
+      <button
+        className="absolute top-3 right-3 z-10 rounded-full bg-white/10 border border-white/20 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20 transition"
+        onClick={onClose}
+        style={{ touchAction: "manipulation" }}
+      >
+        ✕ Затвори
+      </button>
+      <img
+        src={src}
+        alt={alt}
+        style={{
+          touchAction: "pan-x pan-y pinch-zoom",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          maxWidth: "100%",
+          maxHeight: "90vh",
+          objectFit: "contain",
+        }}
+      />
+      <p
+        className="absolute bottom-4 left-0 right-0 text-center text-xs text-white/40"
+        onClick={onClose}
+      >
+        Кликни испод слике за затварање · Pinch за зум
+      </p>
+    </div>
+  );
 }
 function Shell({ user, onLogout, children }: { user: AuthUser; onLogout: () => void; children: React.ReactNode }) {
   const [, navigate] = useLocation();
