@@ -209,14 +209,15 @@ function ImageOverlay({ src, alt, onClose }: { src: string; alt: string; onClose
   }, [onClose]);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95"
-      onClick={onClose}
-    >
+   <div
+  className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95"
+  style={{ touchAction: "pinch-zoom" }}
+>
       <button
-        className="absolute top-3 right-3 z-10 rounded-full bg-white/10 border border-white/20 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20 transition"
-        onClick={onClose}
-      >
+  className="absolute top-3 right-3 z-10 rounded-full bg-white/10 border border-white/20 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20 transition"
+  onClick={onClose}
+  style={{ touchAction: "auto" }}
+>
         ✕ Затвори
       </button>
       {/* touchAction: pinch-zoom enables native browser pinch-to-zoom on mobile */}
@@ -227,7 +228,9 @@ function ImageOverlay({ src, alt, onClose }: { src: string; alt: string; onClose
         style={{ touchAction: "pinch-zoom", maxWidth: "100%", maxHeight: "90vh", objectFit: "contain" }}
         className="rounded-xl select-none"
       />
-      <p className="mt-3 text-xs text-white/40">Кликни ван слике за затварање · Pinch за зум</p>
+      <p className="mt-3 text-xs text-white/40" onClick={onClose}>
+  Кликни испод слике за затварање · Pinch за зум
+</p>
     </div>
   );
 }
