@@ -200,6 +200,38 @@ function useAuth() {
   return { user, setUser, loading, refresh };
 }
 
+// ── Fullscreen image overlay with pinch-zoom support ─────────────────────────
+function ImageOverlay({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95"
+      onClick={onClose}
+    >
+      <button
+        className="absolute top-3 right-3 z-10 rounded-full bg-white/10 border border-white/20 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20 transition"
+        onClick={onClose}
+      >
+        ✕ Затвори
+      </button>
+      {/* touchAction: pinch-zoom enables native browser pinch-to-zoom on mobile */}
+      <img
+        src={src}
+        alt={alt}
+        onClick={(e) => e.stopPropagation()}
+        style={{ touchAction: "pinch-zoom", maxWidth: "100%", maxHeight: "90vh", objectFit: "contain" }}
+        className="rounded-xl select-none"
+      />
+      <p className="mt-3 text-xs text-white/40">Кликни ван слике за затварање · Pinch за зум</p>
+    </div>
+  );
+}
+
 function Shell({ user, onLogout, children }: { user: AuthUser; onLogout: () => void; children: React.ReactNode }) {
   const [, navigate] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -247,6 +279,7 @@ function Shell({ user, onLogout, children }: { user: AuthUser; onLogout: () => v
         )}
       </header>
 
+      {/* Mobile: px-2 py-2 | Desktop: px-4 py-8 */}
       <main className="mx-auto max-w-7xl px-2 py-2 md:px-4 md:py-8">{children}</main>
     </div>
   );
@@ -414,12 +447,12 @@ function SingleUI({ question, shuffleMap, locked, onCommit }: {
   const displayOptions = sm.map((origIdx) => (question.options ?? [])[origIdx]);
 
   return (
-    <div className="mt-2 md:mt-4 grid gap-1.5 md:gap-2">
+    <div className="mt-4 grid gap-1.5 md:gap-3">
       {displayOptions.map((option, si) => {
         const origIdx = sm[si];
         const isSelected = locked !== undefined && Number(locked) === origIdx;
         const isCorrect = origIdx === question.correctAnswer;
-        let cls = "answer text-xs md:text-sm";
+        let cls = "answer text-xs md:text-base";
         if (locked !== undefined && isCorrect) cls += " correct";
         if (locked !== undefined && isSelected && !isCorrect) cls += " wrong";
         return (
@@ -460,14 +493,14 @@ function MultiUI({ question, shuffleMap, locked, onCommit, onRegisterConfirm }: 
   const lockedOrigIndices = locked !== undefined ? locked.split(",").map(Number) : null;
 
   return (
-    <div className="mt-2 md:mt-4 grid gap-1.5 md:gap-2">
-      <p className="text-xs text-blue-200 -mb-0.5">Изаберите све тачне одговоре:</p>
+    <div className="mt-4 grid gap-1.5 md:gap-3">
+      <p className="text-xs md:text-sm text-blue-200 -mb-1">Изаберите све тачне одговоре:</p>
       {displayOptions.map((option, si) => {
         const origIdx = sm[si];
         const isSelectedNow = sel.has(si);
         const isLockedSelected = lockedOrigIndices?.includes(origIdx) ?? false;
         const isCorrect = (question.correctAnswers ?? []).includes(origIdx);
-        let cls = "answer text-left flex items-start gap-2 text-xs md:text-sm";
+        let cls = "answer text-left flex items-start gap-3 text-xs md:text-base";
         if (locked !== undefined && isCorrect) cls += " correct";
         else if (locked !== undefined && isLockedSelected && !isCorrect) cls += " wrong";
         else if (locked === undefined && isSelectedNow) cls += " selected";
@@ -498,9 +531,9 @@ function FillUI({ question, locked, onCommit, onRegisterConfirm }: {
 
   return (
     <div className="mt-4">
-      {question.hint && <p className="mb-3 text-sm italic text-blue-300">Напомена: {question.hint}</p>}
+      {question.hint && <p className="mb-3 text-xs md:text-sm italic text-blue-300">Напомена: {question.hint}</p>}
       <input
-        className="input text-base md:text-xl"
+        className="input text-sm md:text-xl"
         placeholder="Упишите одговор..."
         value={locked !== undefined ? locked : text}
         disabled={locked !== undefined}
@@ -508,7 +541,7 @@ function FillUI({ question, locked, onCommit, onRegisterConfirm }: {
         onKeyDown={(e) => { if (e.key === "Enter") commit(); }}
       />
       {locked !== undefined && (
-        <p className={`mt-3 font-black text-sm md:text-base ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
+        <p className={`mt-3 font-black text-xs md:text-base ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
           {isAnswerCorrect(question, locked) ? "Тачно" : `Нетачно — тачан одговор: ${Array.isArray(question.correctText) ? question.correctText.join(", ") : question.correctText}`}
         </p>
       )}
@@ -565,11 +598,9 @@ function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
     onCommit(answer);
   };
 
-  const allPaired = Object.keys(locked !== undefined ? lockedPairs : pairs).length >= left.length;
-
   return (
     <div className="mt-4">
-      <p className="mb-3 text-sm text-blue-200">Кликните на ставку лево, затим на одговарајућу ставку десно:</p>
+      <p className="mb-3 text-xs md:text-sm text-blue-200">Кликните на ставку лево, затим на одговарајућу ставку десно:</p>
       <div className="grid grid-cols-2 gap-2 md:gap-4">
         <div className="grid gap-2">
           {left.map((item, li) => {
@@ -644,8 +675,6 @@ function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
     return Object.fromEntries(locked.split(",").map((v, i) => [i, Number(v)]));
   }, [locked, positions]);
 
-  const allFilled = items.every((_, i) => (locked !== undefined ? lockedPositions[i] : positions[i]) !== undefined);
-
   const commit = () => {
     const answer = items.map((_, i) => positions[i] ?? 0).join(",");
     onCommit(answer);
@@ -657,7 +686,7 @@ function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
 
   return (
     <div className="mt-4 grid gap-2 md:gap-3">
-      <p className="text-sm text-blue-200 -mb-1">
+      <p className="text-xs md:text-sm text-blue-200 -mb-1">
         {hasSkips ? "Додели редни број (1, 2, 3...) или X (нула) за акције које не треба предузети:" : "Додели редни број свакој ставци (1 = прво):"}
       </p>
       {items.map((item, i) => {
@@ -668,7 +697,7 @@ function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
         return (
           <div key={i} className={`flex items-center gap-2 md:gap-3 rounded-2xl border p-2 md:p-3 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
             <select
-              className="rounded-xl border border-white/20 bg-slate-800 px-2 py-1.5 md:px-3 md:py-2 text-white text-sm"
+              className="rounded-xl border border-white/20 bg-slate-800 px-2 py-1.5 md:px-3 md:py-2 text-white text-xs md:text-sm"
               value={pos ?? ""}
               disabled={locked !== undefined}
               onChange={(e) => setPositions((prev) => ({ ...prev, [i]: Number(e.target.value) }))}
@@ -737,7 +766,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
   if (isMulti) {
     return (
       <div className="mt-4 grid gap-3">
-        <p className="text-sm text-blue-200 -mb-1">Означите бројеве за сваки тип:</p>
+        <p className="text-xs md:text-sm text-blue-200 -mb-1">Означите бројеве за сваки тип:</p>
         {slots.map((slot, i) => {
           const selectedVals = locked !== undefined
             ? new Set(lockedMultiSlots[i]?.split(",").map(Number).filter(Boolean) ?? [])
@@ -758,7 +787,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
                       key={opt}
                       disabled={locked !== undefined}
                       onClick={() => toggleMulti(i, opt)}
-                      className={`rounded-xl border px-3 py-1.5 text-sm font-bold transition ${
+                      className={`rounded-xl border px-3 py-1.5 text-xs md:text-sm font-bold transition ${
                         isSelected ? "border-white bg-white/25 text-white" : "border-white/20 bg-white/5 text-blue-200"
                       }`}
                     >
@@ -778,7 +807,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
 
   return (
     <div className="mt-4 grid gap-2 md:gap-3">
-      <p className="text-sm text-blue-200 -mb-1">Изаберите редни број модула за сваки слот:</p>
+      <p className="text-xs md:text-sm text-blue-200 -mb-1">Изаберите редни број модула за сваки слот:</p>
       {slots.map((slot, i) => {
         const val = locked !== undefined ? lockedSelections[i] : selections[i];
         const isCorrect = locked !== undefined && correctAns.some((ca) => Number(ca[i]) === val);
@@ -787,7 +816,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
           <div key={i} className={`flex items-center gap-3 rounded-2xl border p-2 md:p-3 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
             <span className="w-20 shrink-0 text-xs md:text-sm font-bold text-blue-200">{slot}</span>
             <select
-              className="rounded-xl border border-white/20 bg-slate-800 px-2 py-1.5 text-white text-sm"
+              className="rounded-xl border border-white/20 bg-slate-800 px-2 py-1.5 text-white text-xs md:text-sm"
               value={val ?? ""}
               disabled={locked !== undefined}
               onChange={(e) => setSelections((prev) => ({ ...prev, [i]: Number(e.target.value) }))}
@@ -819,6 +848,7 @@ function QuizPage() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [result, setResult] = useState<{ percentage: number; passed: boolean; score: number; total: number } | null>(null);
   const [error, setError] = useState("");
+  const [overlayImg, setOverlayImg] = useState<string | null>(null);
   const confirmRef = useRef<(() => void) | null>(null);
 
   const answeredCount = Object.keys(answers).length;
@@ -877,7 +907,6 @@ function QuizPage() {
       <div className="mx-auto max-w-3xl card text-center">
         <p className="text-blue-200">{subjectLabel ? `Квиз — ${subjectLabel}` : "Квиз је завршен"}</p>
         <h2 className="mt-2 text-5xl md:text-6xl font-black">{result.percentage}%</h2>
-
         <p className="mt-2 text-blue-100 text-sm md:text-base">Тачно {result.score} од {result.total} питања.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <button className="secondary" onClick={() => navigate("/dashboard")}>Dashboard</button>
@@ -902,8 +931,17 @@ function QuizPage() {
 
   return (
     <section className="mx-auto max-w-5xl pb-16">
-      {/* Single compact top row */}
-      <div className="mb-1 flex items-center gap-1.5">
+      {/* Fullscreen image overlay */}
+      {overlayImg && (
+        <ImageOverlay
+          src={overlayImg}
+          alt="Слика питања"
+          onClose={() => setOverlayImg(null)}
+        />
+      )}
+
+      {/* Compact top strip: counter + progress bar + action buttons */}
+      <div className="mb-1.5 flex items-center gap-1.5">
         <span className="text-[11px] font-bold text-white whitespace-nowrap">
           {current + 1}/{questions.length}
           {subjectLabel && <span className="ml-1 font-normal text-blue-400">— {subjectLabel}</span>}
@@ -930,11 +968,12 @@ function QuizPage() {
         </button>
       </div>
 
-      {/* Question card */}
+      {/* Question card — mobile: p-3, desktop: p-6 */}
       <div className="card p-3 md:p-6">
-        <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+        {/* Meta badges — mobile smaller */}
+        <div className="mb-2 flex flex-wrap items-center gap-1.5 md:gap-2">
           <span className="text-[10px] md:text-sm font-black text-blue-200">#{question.id}</span>
-          <span className="rounded-full border border-white/15 bg-white/5 px-1.5 py-0.5 text-[10px] md:text-xs text-blue-300">
+          <span className="rounded-full border border-white/15 bg-white/5 px-1.5 md:px-2 py-0.5 text-[10px] md:text-xs text-blue-300">
             {question.type === "single" ? "Један одговор" :
               question.type === "multi" ? "Вишеструки одговори" :
               question.type === "fill" ? "Попунити" :
@@ -942,22 +981,31 @@ function QuizPage() {
               question.type === "slot" ? "Слотови" : "Редослед"}
           </span>
           {question.points != null && (
-            <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-1.5 py-0.5 text-[10px] md:text-xs text-yellow-300 font-bold">
+            <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-1.5 md:px-2 py-0.5 text-[10px] md:text-xs text-yellow-300 font-bold">
               {question.points} {question.points === 1 ? "бод" : "бода"}
             </span>
           )}
         </div>
 
+        {/* Image — mobile: max-h-32 + click to fullscreen; desktop: max-h-80 */}
         {question.imageQuestion && (
-          <img
-            src={question.imageQuestion}
-            alt={`Питање ${question.id}`}
-            className="mb-2 md:mb-4 max-h-32 md:max-h-80 w-full rounded-2xl md:rounded-3xl border border-white/10 object-contain"
-            onError={(e) => { e.currentTarget.style.display = "none"; }}
-          />
+          <div className="mb-3">
+            <img
+              src={question.imageQuestion}
+              alt={`Питање ${question.id}`}
+              className="max-h-32 md:max-h-80 w-full rounded-2xl md:rounded-3xl border border-white/10 object-contain cursor-pointer active:opacity-80 transition"
+              onClick={() => setOverlayImg(question.imageQuestion!)}
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
+            />
+            {/* Mobile-only hint */}
+            <p className="mt-1 text-center text-[10px] text-blue-400 md:hidden">👆 Кликни за увећање</p>
+          </div>
         )}
 
-        <h3 className="text-sm font-bold leading-snug md:text-2xl md:font-black">{question.question}</h3>
+        {/* Question text — mobile: text-sm font-bold | desktop: text-2xl font-black */}
+        <h3 className="text-sm font-bold leading-snug md:text-2xl md:font-black md:leading-relaxed">
+          {question.question}
+        </h3>
 
         {/* Answer UIs */}
         {question.type === "single" && (
@@ -979,16 +1027,17 @@ function QuizPage() {
           <SlotUI question={question} locked={locked} onCommit={commit} onRegisterConfirm={(fn) => { confirmRef.current = fn; }} />
         )}
 
+        {/* Explanation — mobile: p-2.5 text-xs rounded-xl */}
         {locked !== undefined && question.type !== "fill" && question.type !== "match" && (
-          <div className="mt-2 md:mt-4 rounded-xl md:rounded-2xl border border-white/10 bg-slate-950/35 p-2.5 md:p-4">
-            <p className={`font-black text-xs md:text-sm ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
+          <div className="mt-3 md:mt-4 rounded-xl md:rounded-2xl border border-white/10 bg-slate-950/35 p-2.5 md:p-4">
+            <p className={`font-black text-xs md:text-base ${isAnswerCorrect(question, locked) ? "text-emerald-200" : "text-red-200"}`}>
               {isAnswerCorrect(question, locked) ? "Тачно!" : "Нетачно"}
             </p>
-            <p className="mt-1 text-xs md:text-sm text-blue-50">{question.explanation}</p>
+            <p className="mt-1 md:mt-2 text-xs md:text-sm text-blue-50">{question.explanation}</p>
           </div>
         )}
         {locked !== undefined && question.type === "match" && (
-          <div className="mt-2 md:mt-4 rounded-xl md:rounded-2xl border border-white/10 bg-slate-950/35 p-2.5 md:p-4">
+          <div className="mt-3 md:mt-4 rounded-xl md:rounded-2xl border border-white/10 bg-slate-950/35 p-2.5 md:p-4">
             <p className="text-xs md:text-sm text-blue-100">{question.explanation}</p>
           </div>
         )}
@@ -1011,7 +1060,6 @@ function QuizPage() {
               ← Назад
             </button>
 
-            {/* Потврди — uvek vidljiv, disabled kad već odgovoreno */}
             <button
               className="flex-1 rounded-lg py-1.5 text-xs font-black transition active:scale-95 disabled:opacity-40"
               style={{
