@@ -11,8 +11,8 @@ const percent = (score: number, total: number) => Math.round((score / Math.max(t
 const SUBJECTS = [
   { key: "rh",  label: "Рачунарски хардвер",             min: 1,   max: 51  },
   { key: "os",  label: "Оперативни системи",              min: 52,  max: 151 },
-  { key: "ors", label: "Одржавање рачунарских система",   min: 152, max: 200 },
-  { key: "td",  label: "Техничка документација",          min: 201, max: 250 },
+  { key: "ors", label: "Одржавање рачунарских система",   min: 152, max: 201 },
+  { key: "td",  label: "Техничка документација",          min: 202, max: 251 },
 ];
 
 async function attemptsForUser(userId: number) {
