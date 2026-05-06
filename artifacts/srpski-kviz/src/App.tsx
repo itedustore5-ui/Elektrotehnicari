@@ -1010,6 +1010,7 @@ function QuizPage() {
         {question.imageQuestion && (
           <div className="mb-3">
             <img
+              key={question.id}
               src={question.imageQuestion}
               alt={`Питање ${question.id}`}
               className="max-h-32 md:max-h-80 w-full rounded-2xl md:rounded-3xl border border-white/10 object-contain cursor-pointer active:opacity-80 transition"
