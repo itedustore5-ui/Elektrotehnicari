@@ -36,7 +36,7 @@ type Question = {
   correctOrder?: number[];
   hasSkips?: boolean;
   slots?: string[];
-  slotOptions?: number[];
+  slotOptions?: number[] | string[];
   correctSlotAnswers?: string[][];
   slotMulti?: boolean;
 };
