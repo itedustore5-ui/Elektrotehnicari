@@ -171,11 +171,11 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
             userSlots[i]?.size === correct.size
         );
       } else {
-        const vals = answer.split(",").map(Number);
-        return (question.correctSlotAnswers ?? []).some((ca) =>
-          ca.every((v, i) => Number(v) === vals[i])
-        );
-      }
+  const vals = answer.split(",");
+  return (question.correctSlotAnswers ?? []).some((ca) =>
+    ca.every((v, i) => String(v).trim() === String(vals[i]).trim())
+  );
+}
     }
   } catch { return false; }
   return false;
