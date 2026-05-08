@@ -2835,7 +2835,7 @@ export const questions: QuizQuestion[] = [
     question: "Ћелија маркирана сивом бојом у табели креираној у Word-у (слика 1) форматирана је тако да јој садржај генерише функција описана сликом 2. (сам на овом питању без обзира ста вам екран покаже погледајте тачна решења) ",
     leftItems: [" 6", "9", " 3", "12"],
     rightItems: ["SUM(ABOVE)", "SUM(LEFT)", "SUM(BELOW)", "SUM(RIGHT)"],
-    correctPairs: [1, 2, 3, 0],
+    correctPairs: [3, 0, 1, 2],
     explanation: "SUM(ABOVE) сабира ћелије изнад маркиране; SUM(LEFT) лево; SUM(BELOW) испод; SUM(RIGHT) десно.",
   },
   {
