@@ -31,7 +31,7 @@ type Question = {
   hint?: string;
   leftItems?: string[];
   rightItems?: string[];
-  correctPairs?: number[];
+  correctPairs?: (number | string)[];
   items?: string[];
   correctOrder?: number[];
   hasSkips?: boolean;
@@ -151,8 +151,13 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
       return pairs.every((v, i) => v === (question.correctPairs ?? [])[i]);
     }
     if (question.type === "order") {
-      const pos = answer.split(",").map(Number);
-      return pos.every((v, i) => v === (question.correctOrder ?? [])[i]);
+      const pos = answer.split(",").map((v) => (v === "0" ? 0 : Number(v)));
+      const correct = question.correctOrder ?? question.correctPairs ?? [];
+      return pos.every((v, i) => {
+        const c = correct[i];
+        if (c === "X" || c === 0) return v === 0;
+        return v === Number(c);
+      });
     }
     if (question.type === "slot") {
       if (question.slotMulti) {
@@ -665,7 +670,7 @@ function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
             <div className="mt-2 text-xs md:text-sm text-blue-200">
               <p className="font-black">Тачни парови:</p>
               {left.map((lItem, li) => (
-                <p key={li}>{lItem} → {right[(question.correctPairs ?? [])[li]]}</p>
+                <p key={li}>{lItem} → {right[(question.correctPairs ?? [])[li] as number]}</p>
               ))}
             </div>
           )}
@@ -684,7 +689,10 @@ function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
 }) {
   const items = question.items ?? [];
   const hasSkips = question.hasSkips ?? false;
-  const maxPos = hasSkips ? items.filter((_, i) => (question.correctOrder ?? [])[i] > 0).length : items.length;
+  const correctRef = question.correctOrder ?? question.correctPairs ?? [];
+  const maxPos = hasSkips
+    ? correctRef.filter((v) => v !== "X" && Number(v) > 0).length
+    : items.length;
   const [positions, setPositions] = useState<Record<number, number>>({});
   useEffect(() => { setPositions({}); }, [question.id]);
   useEffect(() => { onRegisterConfirm?.(commit); }, [positions, question.id]);
@@ -710,9 +718,11 @@ function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
       </p>
       {items.map((item, i) => {
         const pos = locked !== undefined ? lockedPositions[i] : positions[i];
-        const correctPos = (question.correctOrder ?? [])[i];
-        const isCorrect = locked !== undefined && pos === correctPos;
-        const isWrong = locked !== undefined && pos !== correctPos;
+        const correctPos = correctRef[i];
+        const isCorrect = locked !== undefined && (
+          correctPos === "X" || correctPos === 0 ? pos === 0 : pos === Number(correctPos)
+        );
+        const isWrong = locked !== undefined && !isCorrect;
         return (
           <div key={i} className={`flex items-center gap-2 md:gap-3 rounded-2xl border p-2 md:p-3 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
             <select
@@ -727,7 +737,7 @@ function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
               ))}
             </select>
             <span className="flex-1 text-xs md:text-sm">{item}</span>
-            {isWrong && <span className="text-xs text-red-300">тачно: {correctPos === 0 ? "X" : correctPos}</span>}
+            {isWrong && <span className="text-xs text-red-300">тачно: {correctPos === 0 || correctPos === "X" ? "X" : correctPos}</span>}
           </div>
         );
       })}
