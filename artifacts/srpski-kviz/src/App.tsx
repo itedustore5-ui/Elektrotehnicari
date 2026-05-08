@@ -852,7 +852,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
             >
               <option value="">—</option>
               {options.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+               <option key={opt} value={opt}>{opt === 0 ? "X" : opt}</option>
               ))}
             </select>
             {isWrong && <span className="text-xs text-red-300">тачно: {correctAns[0]?.[i]}</span>}
