@@ -756,20 +756,20 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
   const options = question.slotOptions ?? [];
   const isMulti = question.slotMulti ?? false;
 
-  const [selections, setSelections] = useState<Record<number, number>>({});
+  const [selections, setSelections] = useState<Record<number, any>>({});
   const [multiSelections, setMultiSelections] = useState<Record<number, Set<number>>>({});
   useEffect(() => { setSelections({}); setMultiSelections({}); }, [question.id]);
   useEffect(() => {
     onRegisterConfirm?.(isMulti ? commitMulti : commitDropdown);
   }, [selections, multiSelections, question.id, isMulti]);
 
-  const lockedSelections: Record<number, number> = useMemo(() => {
-    if (!locked || isMulti) return selections;
-    return Object.fromEntries(locked.split(",").map((v, i) => [i, Number(v)]));
-  }, [locked, selections, isMulti]);
+  const lockedSelections: Record<number, any> = useMemo(() => {
+  if (!locked || isMulti) return selections;
+  return Object.fromEntries(locked.split(",").map((v, i) => [i, v]));
+}, [locked, selections, isMulti]);
 
   const dropdownAllFilled = slots.every((_, i) => selections[i] !== undefined);
-  const commitDropdown = () => onCommit(slots.map((_, i) => selections[i]).join(","));
+  const commitDropdown = () => onCommit(slots.map((_, i) => selections[i] ?? "").join(","));
 
   const lockedMultiSlots = locked?.split("|") ?? [];
   const toggleMulti = (slotIdx: number, opt: number) => {
@@ -801,7 +801,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
             ? new Set(lockedMultiSlots[i]?.split(",").map(Number).filter(Boolean) ?? [])
             : (multiSelections[i] ?? new Set<number>());
           const correctVals = new Set((correctAns[i]?.[0] ?? "").split(",").map(Number).filter(Boolean));
-          const isCorrect = locked !== undefined &&
+          const isCorrect = locked !== undefined && correctAns.some((ca) => ca[i] === String(val));
             [...correctVals].every((v) => selectedVals.has(v)) &&
             selectedVals.size === correctVals.size;
           const isWrong = locked !== undefined && !isCorrect;
@@ -848,7 +848,7 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
               className="rounded-xl border border-white/20 bg-slate-800 px-2 py-1.5 text-white text-xs md:text-sm"
               value={val ?? ""}
               disabled={locked !== undefined}
-              onChange={(e) => setSelections((prev) => ({ ...prev, [i]: Number(e.target.value) }))}
+              onChange={(e) => setSelections((prev) => ({ ...prev, [i]: e.target.value as any }))}
             >
               <option value="">—</option>
               {options.map((opt) => (
