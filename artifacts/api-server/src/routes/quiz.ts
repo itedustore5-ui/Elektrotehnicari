@@ -5,7 +5,24 @@ import { questions, type QuizQuestion } from "../data/questions";
 import { requireAuth, type AuthedRequest } from "../middlewares/auth";
 
 const router: IRouter = Router();
-
+// ── Javna demo ruta — bez autentifikacije ──────────────────────
+router.get("/questions/demo", (req, res) => {
+  try {
+    const DEMO_SUBJECT = SUBJECTS.find((s) => s.key === "rh")!;
+    const subjectQuestions = questions.filter(
+      (q) => q.id >= DEMO_SUBJECT.min && q.id <= DEMO_SUBJECT.max
+    );
+    // Nasumičnih 20
+    const shuffled = [...subjectQuestions].sort(() => Math.random() - 0.5).slice(0, 20);
+    const mapped = shuffled.map((q) => ({
+      ...q,
+      imageQuestion: q.imageQuestion ? `/images/${q.id}.jpg` : null,
+    }));
+    res.json(mapped);
+  } catch (err) {
+    res.status(500).json({ message: "Greška", error: String(err) });
+  }
+});
 const percent = (score: number, total: number) => Math.round((score / Math.max(total, 1)) * 100);
 
 const SUBJECTS = [
