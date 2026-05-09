@@ -58,10 +58,10 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 async function fetchQuestions(): Promise<Question[]> {
-  const res = await fetch(`/api/questions?subject=${DEMO_SUBJECT}`);
+  const res = await fetch(`/api/questions/demo`);  // ← /demo umesto ?subject=rh
   if (!res.ok) throw new Error("Greška pri učitavanju pitanja.");
-  const all: Question[] = await res.json();
-  return shuffle(all).slice(0, DEMO_COUNT);
+  return res.json();
+}
 }
 
 function isAnswerCorrect(question: Question, answer: string): boolean {
