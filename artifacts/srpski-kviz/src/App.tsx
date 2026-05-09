@@ -802,8 +802,8 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
             ? new Set(lockedMultiSlots[i]?.split(",").map(Number).filter(Boolean) ?? [])
             : (multiSelections[i] ?? new Set<number>());
           const correctVals = new Set((correctAns[i]?.[0] ?? "").split(",").map(Number).filter(Boolean));
-          const isCorrect = locked !== undefined && correctAns.some((ca) => ca[i] === String(val));
-            [...correctVals].every((v) => selectedVals.has(v)) &&
+          const isCorrect = locked !== undefined &&
+           [...correctVals].every((v) => selectedVals.has(v)) &&
             selectedVals.size === correctVals.size;
           const isWrong = locked !== undefined && !isCorrect;
           return (
