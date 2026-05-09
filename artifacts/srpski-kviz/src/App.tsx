@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
+import DemoPage from "@/pages/DemoPage";
 
 type AuthUser = {
   id: number;
@@ -1331,6 +1332,7 @@ function AppRouter() {
   const auth = useAuth();
   return (
     <Switch>
+      <Route path="/demo">{() => <DemoPage />}</Route> 
       <Route path="/login">{() => <Login onLogin={auth.setUser} />}</Route>
       <Route path="/">{() => <Protected auth={auth}><Dashboard user={auth.user!} /></Protected>}</Route>
       <Route path="/dashboard">{() => <Protected auth={auth}><Dashboard user={auth.user!} /></Protected>}</Route>
