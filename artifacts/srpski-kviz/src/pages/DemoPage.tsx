@@ -62,7 +62,6 @@ async function fetchQuestions(): Promise<Question[]> {
   if (!res.ok) throw new Error("Greška pri učitavanju pitanja.");
   return res.json();
 }
-}
 
 function isAnswerCorrect(question: Question, answer: string): boolean {
   try {
