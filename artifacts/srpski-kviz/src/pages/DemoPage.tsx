@@ -98,7 +98,7 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
       });
     }
     if (question.type === "slot") {
-      if (question.slotMulti) {
+     if (question.slotMulti) {
   const userSlots = answer.split("|").map((s) => new Set(s.split(",").map(Number).filter(Boolean)));
   const correctSlots = (question.correctSlotAnswers ?? []).map((ca) =>
     new Set(ca[0].split(",").map(Number).filter(Boolean))
