@@ -99,17 +99,16 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
     }
     if (question.type === "slot") {
       if (question.slotMulti) {
-        const userSlots = answer
-          .split("|")
-          .map((s) => new Set(s.split(",").map(Number).filter(Boolean)));
-        const correctSlots = (question.correctSlotAnswers ?? []).map((ca) =>
-          new Set(ca[0].split(",").map(Number).filter(Boolean))
-        );
-        return correctSlots.every(
-          (correct, i) =>
-            [...correct].every((v) => userSlots[i]?.has(v)) &&
-            userSlots[i]?.size === correct.size
-        );
+  const userSlots = answer.split("|").map((s) => new Set(s.split(",").map(Number).filter(Boolean)));
+  const correctSlots = (question.correctSlotAnswers ?? []).map((ca) =>
+    new Set(ca[0].split(",").map(Number).filter(Boolean))
+  );
+  if (userSlots.length !== correctSlots.length) return false;
+  return correctSlots.every(
+    (correct, i) =>
+      correct.size === userSlots[i]?.size &&
+      [...correct].every((v) => userSlots[i]?.has(v))
+  );
       } else {
         const vals = answer.split(",");
         return (question.correctSlotAnswers ?? []).some((ca) =>
