@@ -32,7 +32,7 @@ type Question = {
   hint?: string;
   leftItems?: string[];
   rightItems?: string[];
-  correctPairs?: (number | string)[];
+  correctPairs?: (number | string)[] | (number | string)[][];
   items?: string[];
   correctOrder?: number[];
   hasSkips?: boolean;
