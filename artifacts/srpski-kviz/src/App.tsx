@@ -150,6 +150,10 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
  if (question.type === "match") {
   const pairs = answer.split(",").map(Number);
   const correct = question.correctPairs ?? [];
+   console.log("answer:", answer);
+  console.log("pairs:", pairs);
+  console.log("correct:", correct);
+  console.log("isArray(correct[0]):", Array.isArray(correct[0]));   
   // Ako je niz nizova — proveri da li odgovara bilo kojoj kombinaciji
   if (Array.isArray(correct[0])) {
     return (correct as (number | string)[][]).some((combo) =>
