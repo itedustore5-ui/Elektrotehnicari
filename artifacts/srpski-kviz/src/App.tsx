@@ -674,28 +674,21 @@ function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
               </button>
             );
           })}
-        
+          {locked !== undefined && (
+            <div className="mt-2 text-xs md:text-sm text-blue-200">
+              <p className="font-black">Тачни парови:</p>
+              {left.map((lItem, li) => (
+                <p key={li}>{lItem} → {right[firstCombo[li]]}</p>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      {/* Potvrdi is in the bottom bar */}
+    </div>
+  );
+}
 
-  const clickRight = (ri: number) => {
-    if (locked !== undefined || selectedLeft === null) return;
-    setPairs((prev) => {
-      const next = { ...prev };
-      for (const key of Object.keys(next)) {
-        if (next[Number(key)] === ri) delete next[Number(key)];
-      }
-      next[selectedLeft] = ri;
-      return next;
-    });
-    setSelectedLeft(null);
-  };
-
-  const commit = () => {
-    if (Object.keys(pairs).length < left.length) return;
-    const answer = left.map((_, i) => pairs[i] ?? -1).join(",");
-    onCommit(answer);
-  };
-
- 
 function OrderUI({ question, locked, onCommit, onRegisterConfirm }: {
   question: Question;
   locked: string | undefined;
