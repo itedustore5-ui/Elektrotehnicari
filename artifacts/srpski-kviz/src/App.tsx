@@ -593,6 +593,12 @@ function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
     return Object.fromEntries(locked.split(",").map((v, i) => [i, Number(v)]));
   }, [locked, pairs]);
 
+  // FIX: correctPairs može biti number[] ili number[][] (više tačnih kombinacija)
+  const cp = question.correctPairs ?? [];
+  const firstCombo: number[] = Array.isArray(cp[0])
+    ? (cp as number[][])[0]
+    : (cp as number[]);
+
   const clickLeft = (li: number) => {
     if (locked !== undefined) return;
     if (selectedLeft === li) {
@@ -604,6 +610,84 @@ function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
       setSelectedLeft(li);
     }
   };
+
+  const clickRight = (ri: number) => {
+    if (locked !== undefined || selectedLeft === null) return;
+    setPairs((prev) => {
+      const next = { ...prev };
+      for (const key of Object.keys(next)) {
+        if (next[Number(key)] === ri) delete next[Number(key)];
+      }
+      next[selectedLeft] = ri;
+      return next;
+    });
+    setSelectedLeft(null);
+  };
+
+  const commit = () => {
+    if (Object.keys(pairs).length < left.length) return;
+    const answer = left.map((_, i) => pairs[i] ?? -1).join(",");
+    onCommit(answer);
+  };
+
+  return (
+    <div className="mt-4">
+      <p className="mb-3 text-xs md:text-sm text-blue-200">Кликните на ставку лево, затим на одговарајућу ставку десно:</p>
+      <div className="grid grid-cols-2 gap-2 md:gap-4">
+        <div className="grid gap-2">
+          {left.map((item, li) => {
+            const paired = locked !== undefined ? lockedPairs[li] : pairs[li];
+            const isActive = selectedLeft === li;
+            const isCorrect = locked !== undefined && firstCombo[li] === lockedPairs[li];
+            const isWrong = locked !== undefined && firstCombo[li] !== lockedPairs[li];
+            let cls = "answer text-left text-xs md:text-sm cursor-pointer";
+            if (isActive) cls += " ring-2 ring-white";
+            if (isCorrect) cls += " correct";
+            else if (isWrong) cls += " wrong";
+            else if (paired !== undefined) cls += " bg-white/20";
+            return (
+              <button key={li} className={cls} onClick={() => clickLeft(li)} disabled={locked !== undefined}>
+                {item}
+                {paired !== undefined && <span className="ml-1 opacity-60 text-xs">→ {right[paired]}</span>}
+              </button>
+            );
+          })}
+        </div>
+        <div className="grid gap-2 content-start">
+          {right.map((item, ri) => {
+            const usedByLeft = locked !== undefined
+              ? Object.entries(lockedPairs).find(([, v]) => v === ri)?.[0]
+              : Object.entries(pairs).find(([, v]) => v === ri)?.[0];
+            let cls = "answer text-left text-xs md:text-sm cursor-pointer";
+            if (locked !== undefined) {
+              const li = usedByLeft !== undefined ? Number(usedByLeft) : -1;
+              if (li >= 0) {
+                const isCorrect = firstCombo[li] === ri;
+                cls += isCorrect ? " correct" : " wrong";
+              }
+            } else if (usedByLeft !== undefined) {
+              cls += " bg-white/20";
+            }
+            return (
+              <button key={ri} className={cls} onClick={() => clickRight(ri)} disabled={locked !== undefined || usedByLeft !== undefined}>
+                {item}
+              </button>
+            );
+          })}
+          {locked !== undefined && (
+            <div className="mt-2 text-xs md:text-sm text-blue-200">
+              <p className="font-black">Тачни парови:</p>
+              {left.map((lItem, li) => (
+                <p key={li}>{lItem} → {right[firstCombo[li]]}</p>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      {/* Potvrdi is in the bottom bar */}
+    </div>
+  );
+}
 
   const clickRight = (ri: number) => {
     if (locked !== undefined || selectedLeft === null) return;
