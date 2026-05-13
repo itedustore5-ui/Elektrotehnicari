@@ -495,7 +495,7 @@ export const questions: QuizQuestion[] = [
       "5 Gbps",
       "600 MB/s",
     ],
-    correctPairs: [3, 5, 0, 1, 2, 4],
+    correctPairs: [[3, 5, 0, 1, 2, 4], [3, 5, 0, 1, 4, 2]],
     explanation: "USB 3.2 Gen2 = 10 Gbps; PCI-E 3.0 x4 ≈ 4 GB/s; SATA 3.0 = 600 MB/s; PCI-E 2.0 x1 = 500 MB/s.",
   },
   {
