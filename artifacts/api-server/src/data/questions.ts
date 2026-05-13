@@ -17,7 +17,7 @@ export type FillQ = {
 export type MatchQ = {
   id: number; type: "match"; subject: string; points: number;
   question: string; leftItems: string[]; rightItems: string[];
-  correctPairs: number[];
+  correctPairs?: (number | string)[] | (number | string)[][];
   explanation: string; imageQuestion?: boolean;
 };
 export type OrderQ = {
