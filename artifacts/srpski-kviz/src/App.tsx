@@ -147,19 +147,28 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
       }
       return answer.trim().toLowerCase() === (question.correctText ?? "").trim().toLowerCase();
     }
-    if (question.type === "match") {
-      const pairs = answer.split(",").map(Number);
-      return pairs.every((v, i) => v === (question.correctPairs ?? [])[i]);
-    }
-    if (question.type === "order") {
-      const pos = answer.split(",").map((v) => (v === "0" ? 0 : Number(v)));
-      const correct = question.correctOrder ?? question.correctPairs ?? [];
-      return pos.every((v, i) => {
-        const c = correct[i];
-        if (c === "X" || c === 0) return v === 0;
-        return v === Number(c);
-      });
-    }
+  if (question.type === "match") {
+  const pairs = answer.split(",").map(Number);
+  const correct = question.correctPairs ?? [];
+  
+  // Pronađi indekse X stavki (koje imaju isti prefiks "X" ili su zamenjive)
+  const xIndices = (question.leftItems ?? [])
+    .map((item, i) => i)
+    .filter((i) => (question.leftItems ?? [])[i]?.trim().startsWith("X") || 
+                   (question.leftItems ?? [])[i]?.match(/^\d+\.\s*X$/i));
+
+  // Za X stavke — proveri da li korisnik koristi iste vrednosti (u bilo kom redosledu)
+  const xCorrectVals = xIndices.map((i) => Number(correct[i])).sort((a, b) => a - b);
+  const xUserVals = xIndices.map((i) => pairs[i]).sort((a, b) => a - b);
+  const xOk = xCorrectVals.every((v, i) => v === xUserVals[i]);
+
+  // Za ne-X stavke — striktno poređenje
+  const nonXOk = pairs.every((v, i) => 
+    xIndices.includes(i) ? true : v === Number(correct[i])
+  );
+
+  return xOk && nonXOk;
+}
     if (question.type === "slot") {
       if (question.slotMulti) {
         const userSlots = answer.split("|").map((s) => new Set(s.split(",").map(Number).filter(Boolean)));
