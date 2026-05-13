@@ -161,18 +161,24 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
       });
     }
     if (question.type === "slot") {
-     if (question.slotMulti) {
-  const userSlots = answer.split("|").map((s) => new Set(s.split(",").map(Number).filter(Boolean)));
-  const correctSlots = (question.correctSlotAnswers ?? []).map((ca) =>
-    new Set(ca[0].split(",").map(Number).filter(Boolean))
-  );
-  if (userSlots.length !== correctSlots.length) return false;
-  return correctSlots.every(
-    (correct, i) =>
-      correct.size === userSlots[i]?.size &&
-      [...correct].every((v) => userSlots[i]?.has(v))
-  );
-}
+      if (question.slotMulti) {
+        const userSlots = answer.split("|").map((s) => new Set(s.split(",").map(Number).filter(Boolean)));
+        const correctSlots = (question.correctSlotAnswers ?? []).map((ca) =>
+          new Set(ca[0].split(",").map(Number).filter(Boolean))
+        );
+        if (userSlots.length !== correctSlots.length) return false;
+        return correctSlots.every(
+          (correct, i) =>
+            correct.size === userSlots[i]?.size &&
+            [...correct].every((v) => userSlots[i]?.has(v))
+        );
+      } else {
+        // FIX 1: obični slot — poredi svaki odgovor sa correctSlotAnswers
+        const userVals = answer.split(",");
+        return (question.correctSlotAnswers ?? []).some((ca) =>
+          ca.every((correctVal, i) => Number(userVals[i]) === Number(correctVal))
+        );
+      }
     }
   } catch { return false; }
   return false;
@@ -342,7 +348,7 @@ function Login({ onLogin }: { onLogin: (user: AuthUser) => void }) {
         </div>
         <form onSubmit={submit} className="bg-slate-950/45 p-8 md:p-12">
           <h2 className="text-2xl font-black">Пријава</h2>
-          <label className="mt-8 block text-sm font-bold text-blue-100">Корисничко име</label>
+          <label className="mt-8 block text-sm font-bold text-blue-100">Корисничко ime</label>
           <input className="input" value={username} autoComplete="username" onChange={(e) => setUsername(e.target.value)} />
           <label className="mt-4 block text-sm font-bold text-blue-100">Лозинка</label>
           <input className="input" type="password" value={password} autoComplete="current-password" onChange={(e) => setPassword(e.target.value)} />
@@ -761,9 +767,9 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
   }, [selections, multiSelections, question.id, isMulti]);
 
   const lockedSelections: Record<number, any> = useMemo(() => {
-  if (!locked || isMulti) return selections;
-  return Object.fromEntries(locked.split(",").map((v, i) => [i, v]));
-}, [locked, selections, isMulti]);
+    if (!locked || isMulti) return selections;
+    return Object.fromEntries(locked.split(",").map((v, i) => [i, v]));
+  }, [locked, selections, isMulti]);
 
   const dropdownAllFilled = slots.every((_, i) => selections[i] !== undefined);
   const commitDropdown = () => onCommit(slots.map((_, i) => selections[i] ?? "").join(","));
@@ -836,7 +842,8 @@ function SlotUI({ question, locked, onCommit, onRegisterConfirm }: {
       <p className="text-xs md:text-sm text-blue-200 -mb-1">Изаберите редни број модула за сваки слот:</p>
       {slots.map((slot, i) => {
         const val = locked !== undefined ? lockedSelections[i] : selections[i];
-        const isCorrect = locked !== undefined && correctAns.some((ca) => Number(ca[i]) === val);
+        // FIX 2: koristi Number(val) da bi poređenje string/number uvek bilo ispravno
+        const isCorrect = locked !== undefined && correctAns.some((ca) => Number(ca[i]) === Number(val));
         const isWrong = locked !== undefined && !isCorrect;
         return (
           <div key={i} className={`flex items-center gap-3 rounded-2xl border p-2 md:p-3 ${isCorrect ? "border-emerald-400/40 bg-emerald-500/15" : isWrong ? "border-red-400/40 bg-red-500/15" : "border-white/10 bg-white/5"}`}>
