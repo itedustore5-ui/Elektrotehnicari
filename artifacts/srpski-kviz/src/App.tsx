@@ -600,10 +600,16 @@ function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
   }, [locked, pairs]);
 
   // FIX: correctPairs može biti number[] ili number[][] (više tačnih kombinacija)
-  const cp = question.correctPairs ?? [];
-  const firstCombo: number[] = Array.isArray(cp[0])
-    ? (cp as number[][])[0]
-    : (cp as number[]);
+ const cp = question.correctPairs ?? [];
+  const allCombos: number[][] = Array.isArray(cp[0])
+    ? (cp as number[][])
+    : [(cp as number[])];
+  // Koristi kombinaciju koja odgovara lockedPairs, ili prvu kao fallback
+  const firstCombo: number[] = locked
+    ? allCombos.find((combo) =>
+        combo.every((v, i) => v === lockedPairs[i])
+      ) ?? allCombos[0]
+    : allCombos[0];
 
   const clickLeft = (li: number) => {
     if (locked !== undefined) return;
