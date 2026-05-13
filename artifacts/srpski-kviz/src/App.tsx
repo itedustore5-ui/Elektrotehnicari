@@ -674,20 +674,7 @@ function MatchUI({ question, locked, onCommit, onRegisterConfirm }: {
               </button>
             );
           })}
-          {locked !== undefined && (
-            <div className="mt-2 text-xs md:text-sm text-blue-200">
-              <p className="font-black">Тачни парови:</p>
-              {left.map((lItem, li) => (
-                <p key={li}>{lItem} → {right[firstCombo[li]]}</p>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-      {/* Potvrdi is in the bottom bar */}
-    </div>
-  );
-}
+        
 
   const clickRight = (ri: number) => {
     if (locked !== undefined || selectedLeft === null) return;
