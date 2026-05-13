@@ -147,27 +147,17 @@ function isAnswerCorrect(question: Question, answer: string): boolean {
       }
       return answer.trim().toLowerCase() === (question.correctText ?? "").trim().toLowerCase();
     }
-  if (question.type === "match") {
+ if (question.type === "match") {
   const pairs = answer.split(",").map(Number);
   const correct = question.correctPairs ?? [];
-  
-  // Pronađi indekse X stavki (koje imaju isti prefiks "X" ili su zamenjive)
-  const xIndices = (question.leftItems ?? [])
-    .map((item, i) => i)
-    .filter((i) => (question.leftItems ?? [])[i]?.trim().startsWith("X") || 
-                   (question.leftItems ?? [])[i]?.match(/^\d+\.\s*X$/i));
-
-  // Za X stavke — proveri da li korisnik koristi iste vrednosti (u bilo kom redosledu)
-  const xCorrectVals = xIndices.map((i) => Number(correct[i])).sort((a, b) => a - b);
-  const xUserVals = xIndices.map((i) => pairs[i]).sort((a, b) => a - b);
-  const xOk = xCorrectVals.every((v, i) => v === xUserVals[i]);
-
-  // Za ne-X stavke — striktno poređenje
-  const nonXOk = pairs.every((v, i) => 
-    xIndices.includes(i) ? true : v === Number(correct[i])
-  );
-
-  return xOk && nonXOk;
+  // Ako je niz nizova — proveri da li odgovara bilo kojoj kombinaciji
+  if (Array.isArray(correct[0])) {
+    return (correct as (number | string)[][]).some((combo) =>
+      pairs.every((v, i) => v === Number(combo[i]))
+    );
+  }
+  // Inače staro poređenje
+  return pairs.every((v, i) => v === Number(correct[i]));
 }
     if (question.type === "slot") {
       if (question.slotMulti) {
