@@ -1677,7 +1677,7 @@ export const questions: QuizQuestion[] = [
       "Креирати Mirrored волумен",
       "Конвертовати дискове у динамичке",
     ],
-    correctOrder: [0,"x","x","x", 2, 1],
+    correctOrder: [1,"x","x","x", 3, 2],
     hasSkips: true,
     explanation: "Редослед: Иницијализовати → Конвертовати у динамичке → Kreirati Mirrored волумен.",
   },
