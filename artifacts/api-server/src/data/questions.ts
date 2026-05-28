@@ -1636,7 +1636,7 @@ export const questions: QuizQuestion[] = [
       "Претраживач захтева од DNS-а претварање домена у IP адресу",
       "Сервер шаље HTML код за ову веб страницу назад прегледачу",
     ],
-    correctOrder: [1, 3, 0, 2],
+    correctOrder: [2, 4, 1, 3],
     explanation: "DNS lookup → HTTP REQUEST → Server шаље HTML → Browser приказује страницу.",
   },
   {
