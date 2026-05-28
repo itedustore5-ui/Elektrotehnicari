@@ -1666,7 +1666,7 @@ export const questions: QuizQuestion[] = [
       "X",
       "X"
     ],
-    correctPairs: [[2, 5, 1, 0, 3, 4], [2, 5, 1, 0, 4, 3], [2, 5, 1, 4, 3, 0], [2, 5, 1,4, 0, 3], [2, 5, 1, 3, 0, 4], [2, 5, 1, 3, 4, 0]],
+    correctPairs: [2, 5, 1, 0, 3, 4],
     explanation: "Code injection убацује код; DoS/DDoS загушује сервер; Ransomware шифрује и тражи откупнину.",
   },
   {
