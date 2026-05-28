@@ -157,6 +157,15 @@ if (question.type === "match") {
   }
   return pairs.every((v, i) => v === Number(correct[i]));
 }
+    if (question.type === "order") {
+  const vals = answer.split(",").map(Number);
+  const correct = (question.correctOrder ?? []).map((v) => Number(v));
+
+  return (
+    vals.length === correct.length &&
+    vals.every((v, i) => v === correct[i])
+  );
+}
     if (question.type === "slot") {
       if (question.slotMulti) {
         const userSlots = answer.split("|").map((s) => new Set(s.split(",").map(Number).filter(Boolean)));
