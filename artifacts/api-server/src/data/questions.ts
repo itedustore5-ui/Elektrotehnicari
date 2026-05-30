@@ -2302,7 +2302,7 @@ export const questions: QuizQuestion[] = [
       "objComputer.SetInfo",
       "Set objComputer = objOU.Create(\"Computer\", \"CN= Lucas\")",
     ],
-    correctOrder: [3, 2, 0, 4, 1],
+    correctOrder: [4, 3, 1, 5, 2],
     explanation: "Редослед: GetObject (ОЈ) → Create (рачунар) → Put sAMAccountName → Put userAccountControl → SetInfo.",
   },
 
