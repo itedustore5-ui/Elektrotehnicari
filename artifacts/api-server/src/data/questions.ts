@@ -1454,7 +1454,7 @@ export const questions: QuizQuestion[] = [
       "У својствима за WiFi1, изаберите опцију Look for other wireless networks while connected to this network",
       "У својствима за WiFi2, изаберите опцију Look for other wireless networks while connected to this network",
     ],
-    correctAnswers: [5, 6],
+    correctAnswers: [4, 5],
     explanation: "“Connect automatically when this network is in range” → обезбеђује да се рачунар увек повезује на WiFi2 кад је доступан (јачи и поузданији) a “Look for other wireless networks while connected to this network” → омогућава да систем аутоматски пређе на бољу мрежу (WiFi2) када постане доступна, а користи WiFi1 само када WiFi2 није доступан.",
   },
 
